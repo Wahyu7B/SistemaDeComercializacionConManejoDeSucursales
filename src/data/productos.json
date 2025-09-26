@@ -1,0 +1,16 @@
+{
+  "productos": [
+    {
+      "id": "prod001",
+      "nombre": "Laptop HP",
+      "descripcion": "Laptop empresarial",
+      "precio": 1200,
+      "stock": 50,
+      "categoria": "Tecnología",
+      "sucursalesStock": {
+        "suc001": 25,
+        "suc002": 25
+      }
+    }
+  ]
+}

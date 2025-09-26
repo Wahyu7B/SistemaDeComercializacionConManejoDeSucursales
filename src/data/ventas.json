@@ -1,0 +1,19 @@
+{
+  "ventas": [
+    {
+      "id": "venta001",
+      "fecha": "2024-01-20",
+      "sucursalId": "suc001",
+      "cliente": "Juan Pérez",
+      "productos": [
+        {
+          "productoId": "prod001",
+          "cantidad": 2,
+          "precioUnitario": 1200
+        }
+      ],
+      "total": 2400,
+      "estado": "completada"
+    }
+  ]
+}

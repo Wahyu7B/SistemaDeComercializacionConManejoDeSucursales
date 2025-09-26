@@ -1,0 +1,12 @@
+{
+  "usuarios": [
+    {
+      "id": "user001",
+      "nombre": "Admin",
+      "email": "admin@empresa.com",
+      "password": "hash123",
+      "rol": "administrador",
+      "sucursalId": "suc001"
+    }
+  ]
+}
