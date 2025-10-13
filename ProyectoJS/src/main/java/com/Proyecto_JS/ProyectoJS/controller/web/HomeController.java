@@ -25,7 +25,7 @@ public class HomeController {
     @GetMapping("/")
     public String mostrarPaginaDeInicio(Model model) {
 
-        List<Libro> librosDestacados = libroService.obtenerTodosLosLibros().stream().limit(3).toList();
+        List<Libro> librosDestacados = libroService.obtenerTodosLosLibros().stream().limit(8).toList();
         
 
         List<Sucursal> sucursales = sucursalService.obtenerTodasLasSucursales();

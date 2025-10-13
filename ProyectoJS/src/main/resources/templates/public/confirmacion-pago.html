@@ -1,28 +1,102 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Confirma tu Pago</title>
+    <meta charset="UTF-8">
+    <title>Confirma tu Pago | Libros como Alas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <header>
-        </header>
-    <main class="container my-5 text-center">
-        <h1 class="mb-3">¡Casi listo! Confirma tu pago</h1>
-        <p class="lead text-muted">Escanea el siguiente código QR con tu app de Yape para completar la compra.</p>
-        
-        <div class="my-4">
-            <img th:src="@{/images/qr-yape.png}" alt="Código QR de Yape" style="max-width: 300px;">
-        </div>
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg px-4 py-3">
+            <div class="container">
+                <a class="navbar-brand" th:href="@{/}">
+                    <img th:src="@{/images/LogoLibroComoAlas.png}" alt="Libros como Alas Logo" class="logo-img">
+                    <span>Libros como Alas</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item"><a class="nav-link" th:href="@{/catalogo}">Catálogo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#ubicanos">Ubícanos</a></li>
+                        <li class="nav-item"><a class="nav-link" th:href="@{/carrito}">Mi Carrito</a></li>
+                        <li class="nav-item ms-lg-3" sec:authorize="isAnonymous()">
+                            <a class="btn btn-outline-dark" th:href="@{/login}">Iniciar Sesión</a>
+                        </li>
+                        <li class="nav-item dropdown ms-lg-3" sec:authorize="isAuthenticated()">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span sec:authentication="name"></span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" th:href="@{/perfil}">Mi Perfil</a></li>
+                                <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/admin/dashboard}">Panel de Admin</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form th:action="@{/logout}" method="post" class="d-inline">
+                                        <button type="submit" class="dropdown-item">Cerrar Sesión</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
 
-        <h4>Total a Pagar: <span class="text-dark fw-bold" th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}"></span></h4>
-        
-        <p>Una vez realizado el pago, nuestro equipo lo validará y recibirás un correo de confirmación.</p>
-        <a th:href="@{/perfil}" class="btn btn-outline-dark mt-3">Ver mi historial de pedidos</a>
+    <main class="container my-5 py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="card shadow-sm border-0 confirmation-card">
+                    <div class="card-body text-center p-4 p-md-5">
+                        
+                        <div class="confirmation-icon text-success mb-3">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+
+                        <h1 class="h2">¡Pedido Creado con Éxito!</h1>
+                        <p class="lead text-muted">Solo falta un paso para completar tu compra.</p>
+                        
+                        <hr class="my-4">
+
+                        <h4 class="mb-3"><i class="bi bi-qr-code-scan"></i> Escanea para Pagar</h4>
+                        <p>Usa la cámara de tu celular con tu aplicación de Yape para escanear el siguiente código QR.</p>
+                        
+                        <div class="my-4">
+                            <img th:src="@{/images/qr-yape.png}" alt="Código QR de Yape" style="max-width: 280px; border-radius: 8px;">
+                        </div>
+
+                        <div class="alert alert-light text-center" role="alert">
+                            <strong class="d-block fs-5">Total a Pagar:</strong>
+                            <span class="display-6 text-dark fw-bold" th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}">S/ 0.00</span>
+                        </div>
+                        
+                        <p class="small text-muted mt-4">
+                            Recuerda que tu pedido <strong th:text="'#' + ${pedido.id}">#000</strong> está en espera. Una vez realizado el pago, nuestro equipo lo validará y recibirás un correo de confirmación para coordinar la entrega.
+                        </p>
+                        
+                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+                            <a th:href="@{/perfil}" class="btn btn-dark">Ver mi historial de pedidos</a>
+                            <a th:href="@{/}" class="btn btn-outline-secondary">Volver a la tienda</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
-    <footer>
-        </footer>
+
+    <footer class="border-top py-4 mt-5">
+        <div class="container text-center text-muted">
+            <p class="mb-0">&copy; 2025 Libros como Alas. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

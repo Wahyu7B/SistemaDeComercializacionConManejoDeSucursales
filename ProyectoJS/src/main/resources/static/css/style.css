@@ -1,142 +1,123 @@
 /* Fuentes */
 body {
     font-family: 'Inter', sans-serif;
-    color: #000;
+    color: #333;
     background-color: #fff;
     line-height: 1.6;
 }
 
 h1, h2, h3, h4, h5, h6,
-.navbar-brand {
+.navbar-brand span {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 600;
 }
 
-/* Navbar */
+/* Navbar y Logo */
 .navbar {
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid #eee;
 }
-
 .navbar-brand {
+    display: flex;
+    align-items: center;
     font-size: 1.75rem;
     color: #000 !important;
 }
-
-.nav-link {
-    color: #333 !important;
-    font-weight: 500;
-    position: relative;
-    padding: 0.5rem 0;
+.logo-img {
+    height: 40px;
+    margin-right: 12px;
 }
+.nav-link {
+    color: #555 !important;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.nav-link:hover, .nav-link:focus { color: #000 !important; }
+.navbar .btn { font-weight: 600; }
 
-.nav-link:hover,
-.nav-link:focus {
-    color: #000 !important;
+/* ✅ Hero Section v2 (Con imagen) */
+.hero-section-v2 {
+    background-color: #fdfaf7;
+    padding: 5rem 0;
+    border-bottom: 1px solid #eee;
+}
+.hero-section-v2 .display-3 {
+    font-weight: 700;
+    color: #1a1a1a;
+}
+.hero-section-v2 .lead {
+    font-size: 1.2rem;
+}
+.hero-section-v2 img {
+    /* ✅ Ajuste para la imagen "PersonasLeyendo" */
+    max-height: 450px;
+    width: 100%;
+    object-fit: cover; /* Evita que la imagen se deforme */
 }
 
 /* Book Card */
 .book-card {
     background: #fff;
     border: 1px solid #eee;
-    border-radius: 4px;
+    border-radius: 8px;
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
-    max-width: 100%;
+    display: flex;
+    flex-direction: column;
 }
-
 .book-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
-
 .book-cover {
-    height: 280px;
+    height: 320px;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #fafafa;
-    border-bottom: 1px solid #eee;
+    padding: 1rem;
 }
-
 .book-cover img {
     max-height: 100%;
-    max-width: 100%;
+    width: auto;
     object-fit: contain;
-    padding: 12px;
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
-
 .book-info {
     text-align: left;
+    flex-grow: 1;
 }
-
 .book-title {
-    font-size: 1.125rem;
-    color: #000;
-}
-
-.book-author {
-    font-size: 0.95rem;
-}
-
-.book-price {
     font-size: 1.1rem;
     color: #000;
-    margin: 0.5rem 0;
+    font-weight: 600;
 }
+.book-author { font-size: 0.9rem; }
+.book-price { font-size: 1.2rem; color: #000; }
 
-.btn-link {
-    font-weight: 500;
-    color: #000;
-    padding-left: 0;
-}
-
-.btn-link:hover {
-    color: #555;
-    text-decoration: none;
+/* Sucursales Section */
+.sucursales-section {
+    background-color: #f8f9fa;
+    border-top: 1px solid #eee;
+    padding: 5rem 0;
 }
 
 /* Footer */
-footer {
-    background-color: #fff;
-}
+footer { background-color: #fff; }
 
-/* Responsive tweaks */
-@media (max-width: 768px) {
-    .book-cover {
-        height: 240px;
-    }
-    .navbar-brand {
-        font-size: 1.5rem;
-    }
-}
-
-/* Modal elegante */
+/* Modal */
 .modal-content {
     border: none;
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.12);
 }
+.modal-header { padding: 1rem 1.5rem 0; }
+.modal-body { padding: 1.5rem; }
+.btn-close { opacity: 0.5; }
+.btn-close:hover { opacity: 1; }
 
-.modal-header {
-    padding: 1rem 1.5rem 0;
-}
-
-.modal-body {
-    padding: 1.5rem;
-}
-
-/* Botón de cerrar más discreto */
-.btn-close {
-    width: 20px;
-    height: 20px;
-    opacity: 0.5;
-}
-.btn-close:hover {
-    opacity: 1;
-}
-
-/* Tipografía en el modal */
 #contenidoModalDetalle h2,
 #contenidoModalDetalle h3,
 #contenidoModalDetalle h4,
@@ -144,57 +125,258 @@ footer {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 600;
 }
-
 #contenidoModalDetalle p,
 #contenidoModalDetalle label {
     font-family: 'Inter', sans-serif;
 }
 
+/* ... (pega esto al final de tus estilos existentes) ... */
 
-/* Estilos para la Landing Page (index.html) */
-
-.hero-section {
-    background-color: #fdfaf7; /* Un color crema muy suave */
-    border-bottom: 1px solid #eee;
+/* ESTILOS PARA EL CATÁLOGO */
+.catalog-header {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1532012197267-da84d127e765?w=1000');
+    background-size: cover;
+    background-position: center;
+    padding: 4rem 0;
+    color: #fff;
 }
 
-.hero-section .display-4 {
+.filters-sidebar {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    position: sticky;
+    top: 100px;
+}
+
+/* Paginación (la necesitaremos después) */
+.pagination .page-link {
+    color: #333;
+}
+.pagination .page-item.active .page-link {
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+/* --- ESTILOS PARA LA PÁGINA DEL CARRITO --- */
+
+/* Contenedor del carrito vacío */
+.empty-cart-container {
+    background-color: #f8f9fa;
+    border: 2px dashed #e9ecef;
+    border-radius: 8px;
+    padding: 3rem;
+}
+
+/* Tabla de ítems del carrito */
+.cart-items-table .table-header {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.cart-item-row {
+    border-bottom: 1px solid #eee;
+    padding: 1.5rem 0;
+}
+.cart-item-row:last-child {
+    border-bottom: none;
+}
+
+.cart-item-img {
+    width: 80px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* Selector de cantidad */
+.quantity-selector {
+    display: flex;
+    max-width: 120px;
+}
+.quantity-selector .form-control {
+    border-left: none;
+    border-right: none;
+    background: #fff;
+}
+.quantity-selector .btn {
+    border-color: #ced4da;
+}
+
+/* Resumen del Pedido */
+.cart-summary {
+    background-color: #f8f9fa;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    top: 100px; /* Para el efecto 'sticky' */
+}
+
+/* --- ESTILOS PARA LA PÁGINA DE CHECKOUT --- */
+
+.delivery-option-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: relative;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.delivery-option-card:has(input:checked) {
+    border-color: #000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.delivery-option-card .form-check-input {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 1.25em;
+    height: 1.25em;
+}
+
+.delivery-option-card .form-check-label {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding-top: 1rem;
+}
+
+.checkout-item-img {
+    width: 50px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+/* --- ESTILOS PARA LA PÁGINA DE CONFIRMACIÓN DE PAGO --- */
+
+.confirmation-card {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+}
+
+.confirmation-icon {
+    font-size: 4.5rem;
+    line-height: 1;
+}
+
+/* --- ESTILOS PARA LA PÁGINA DE PERFIL --- */
+
+.profile-sidebar {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    top: 100px; /* Para efecto sticky */
+}
+
+.profile-sidebar .nav-link {
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.profile-sidebar .nav-link.active,
+.profile-sidebar .nav-link:hover {
+    background-color: #e9ecef;
+    color: #000;
+}
+
+.profile-sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Tarjetas de Pedido */
+.order-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.order-card .card-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* --- ESTILOS PARA PÁGINAS DE AUTENTICACIÓN (LOGIN Y REGISTRO) --- */
+
+/* Estilos comunes */
+.login-form-panel {
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem;
+}
+
+.login-logo {
+    max-height: 70px;
+}
+
+/* --- ESTILOS ESPECÍFICOS PARA LOGIN --- */
+
+.login-image-panel {
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    color: white;
+}
+
+.login-image-panel .image-overlay-text {
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 2.5rem;
+}
+.login-image-panel .image-overlay-text h2 {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 700;
 }
 
-/* Estilos para la sección de Sucursales en el Index */
-.sucursales-section {
-    background-color: #fdfaf7; /* Un color crema muy suave, como el hero */
-    border-top: 1px solid #eee;
+/* --- ESTILOS ESPECÍFICOS PARA REGISTRO --- */
+
+.register-page-background {
+    background-color: #f8f9fa;
 }
 
-/* Estilos para la página del Carrito */
-.cart-item {
-    border-bottom: 1px solid #eee;
+.register-image-panel {
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.cart-item:last-child {
-    border-bottom: none;
+.register-image-container {
+    width: 100%;
+    height: 90vh; /* Altura del contenedor de la imagen */
+    max-height: 800px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.15);
 }
 
-.cart-summary {
-    background-color: #fdfaf7; /* Color crema suave */
-    border: 1px solid #eee;
-    border-radius: 4px;
+.register-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-/* Estilos para la página del Carrito */
-.cart-item {
-    border-bottom: 1px solid #eee;
+.register-image-container .image-overlay-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2.5rem;
+    padding-top: 5rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 20%, transparent);
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
-
-.cart-item:last-child {
-    border-bottom: none;
-}
-
-.cart-summary {
-    background-color: #fdfaf7; /* Color crema suave */
-    border: 1px solid #eee;
-    border-radius: 4px;
+.register-image-container h2 {
+    font-family: 'Cormorant Garamond', serif;
 }

@@ -5,6 +5,7 @@ import com.Proyecto_JS.ProyectoJS.entity.Carrito;
 import com.Proyecto_JS.ProyectoJS.entity.Pedido;
 import com.Proyecto_JS.ProyectoJS.entity.Usuario;
 import com.Proyecto_JS.ProyectoJS.exception.RecursoNoEncontradoException;
+import com.Proyecto_JS.ProyectoJS.repository.SucursalRepository; // ✅ 1. IMPORTA ESTO
 import com.Proyecto_JS.ProyectoJS.repository.UsuarioRepository;
 import com.Proyecto_JS.ProyectoJS.service.CarritoService;
 import com.Proyecto_JS.ProyectoJS.service.PedidoService;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @Controller
 @RequestMapping("/pedido")
@@ -32,6 +32,9 @@ public class PedidoController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private SucursalRepository sucursalRepository; // ✅ 2. AÑADE ESTA LÍNEA
+
     @GetMapping("/checkout")
     public String mostrarCheckout(Model model) {
         // Obtenemos el usuario logueado
@@ -43,17 +46,22 @@ public class PedidoController {
         Carrito carrito = carritoService.obtenerCarritoDelUsuario(usuario.getId());
         model.addAttribute("carrito", carrito);
         
+        // ✅ 3. AÑADE ESTA LÍNEA PARA ENVIAR LAS SUCURSALES
+        model.addAttribute("sucursales", sucursalRepository.findAll());
+        
         return "public/checkout";
     }
 
+    // He actualizado este método para que coincida con los campos del formulario del checkout
     @PostMapping("/procesar")
     public String procesarPedido(@RequestParam Long carritoId,
-                                 @RequestParam(required = false) Long direccionEnvioId,
                                  @RequestParam String tipoEntrega,
                                  @RequestParam(required = false) Long sucursalRecojoId,
+                                 @RequestParam(required = false) String distrito,
+                                 @RequestParam(required = false) String direccion,
                                  RedirectAttributes redirectAttributes) {
         try {
-            Pedido nuevoPedido = pedidoService.crearPedido(carritoId, direccionEnvioId, tipoEntrega, sucursalRecojoId);
+            Pedido nuevoPedido = pedidoService.crearPedido(carritoId, null, tipoEntrega, sucursalRecojoId); // Pasamos null para direccionEnvioId ya que no se usa
             redirectAttributes.addFlashAttribute("successMessage", "¡Pedido #" + nuevoPedido.getId() + " creado con éxito!");
             return "redirect:/pedido/confirmacion/" + nuevoPedido.getId();
         } catch (Exception e) {
@@ -64,7 +72,6 @@ public class PedidoController {
     
     @GetMapping("/confirmacion/{id}")
     public String mostrarConfirmacionDePago(@PathVariable("id") Long id, Model model) {
-        // Buscamos el pedido por su ID para mostrar el total correcto
         Pedido pedido = pedidoService.obtenerPedidoPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Pedido no encontrado"));
         

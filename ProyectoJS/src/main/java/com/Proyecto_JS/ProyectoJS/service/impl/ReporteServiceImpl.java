@@ -1,49 +1,62 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/service/impl/ReporteServiceImpl.java
 package com.Proyecto_JS.ProyectoJS.service.impl;
 
 import com.Proyecto_JS.ProyectoJS.entity.TopVendidoView;
 import com.Proyecto_JS.ProyectoJS.service.ReporteService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class ReporteServiceImpl implements ReporteService {
 
-    @Autowired
-    private RestTemplate restTemplate;
-
-    private final String PDF_API_URL = "http://localhost:4001/api/generar-top-vendidos";
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public byte[] generarTopVendidosPDF(List<TopVendidoView> topVendidos) {
+        // ✅ CORRECCIÓN: Apuntar al puerto 4001 y a la ruta '/reporte-libros-vendidos'
+        String url = "http://localhost:4001/reporte-libros-vendidos";
+
         try {
-            // Preparamos los encabezados para indicar que enviamos JSON
+            System.out.println("Enviando datos a la API de Node.js para generar PDF...");
+
+            // Preparar el cuerpo de la petición
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("libros", topVendidos);
+            requestBody.put("fecha", LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+
+            // Configurar cabeceras
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            
-            // Creamos el cuerpo de la petición con los datos del reporte
-            Map<String, List<TopVendidoView>> requestBody = Map.of("data", topVendidos);
-            HttpEntity<Map<String, List<TopVendidoView>>> request = new HttpEntity<>(requestBody, headers);
 
-            System.out.println("Enviando datos a la API de Node.js para generar PDF...");
-            
-            // Hacemos la petición POST y esperamos un array de bytes (el PDF)
-            // Usamos postForObject y esperamos el tipo byte[]
-            byte[] pdfBytes = restTemplate.postForObject(PDF_API_URL, request, byte[].class);
-            
-            System.out.println("PDF recibido con éxito desde el microservicio.");
-            return pdfBytes;
+            // Crear la petición
+            HttpEntity<String> request = new HttpEntity<>(objectMapper.writeValueAsString(requestBody), headers);
+
+            // Realizar la llamada POST y obtener la respuesta
+            ResponseEntity<byte[]> response = restTemplate.postForEntity(url, request, byte[].class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("PDF recibido exitosamente desde Node.js.");
+                return response.getBody();
+            } else {
+                System.err.println("Error al generar PDF. Código de estado: " + response.getStatusCode());
+                return null;
+            }
 
         } catch (Exception e) {
             System.err.println("Error fatal al generar el PDF con Node.js: " + e.getMessage());
-            // Devolvemos un array vacío para indicar que falló
-            return new byte[0]; 
+            e.printStackTrace();
+            return null;
         }
     }
 }
