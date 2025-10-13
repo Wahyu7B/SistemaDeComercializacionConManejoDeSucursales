@@ -1,4 +1,3 @@
-// Ubicación: servicio-notificaciones/index.js
 
 const express = require('express');
 const nodemailer = require('nodemailer');
@@ -8,15 +7,14 @@ app.use(express.json());
 
 const PORT = 4000;
 
-// --- CONFIGURACIÓN CON TU CUENTA DE GMAIL ---
 let transporter = nodemailer.createTransport({
-    service: 'gmail', // Usamos el servicio preconfigurado de Gmail
+    service: 'gmail', 
     auth: {
-        user: 'segundollengle157@gmail.com',         // ✅ REEMPLAZA ESTO con tu dirección de Gmail
-        pass: 'sfxgvavaipxdpgij'             // Tu contraseña de aplicación (sin espacios)
+        user: 'segundollengle157@gmail.com',       
+        pass: 'sfxgvavaipxdpgij'            
     },
 });
-// -----------------------------------------
+
 
 app.post('/api/enviar-confirmacion', async (req, res) => {
     console.log("-> Petición recibida para enviar email de confirmación...");
@@ -29,7 +27,7 @@ app.post('/api/enviar-confirmacion', async (req, res) => {
 
     try {
         let info = await transporter.sendMail({
-            from: '"Libros como Alas" <segundollengle157@gmail.com>', // ✅ REEMPLAZA ESTO con tu Gmail de nuevo
+            from: '"Libros como Alas" <segundollengle157@gmail.com>',
             to: emailCliente,
             subject: `✅ Confirmación de tu Pedido #${numeroPedido}`,
             html: `<h1>¡Gracias por tu compra!</h1><p>Tu pedido #${numeroPedido} ha sido confirmado y está siendo preparado.</p>`,
@@ -47,7 +45,6 @@ app.post('/api/enviar-confirmacion', async (req, res) => {
     }
 });
 
-// --- ✅ NUEVA API para RECHAZAR un pedido ---
 app.post('/api/enviar-rechazo', async (req, res) => {
     console.log("-> Petición recibida para enviar email de RECHAZO...");
 

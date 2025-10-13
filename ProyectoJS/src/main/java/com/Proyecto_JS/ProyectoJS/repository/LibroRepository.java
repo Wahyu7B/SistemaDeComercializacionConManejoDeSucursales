@@ -8,10 +8,8 @@ import java.util.List;
 
 public interface LibroRepository extends JpaRepository<Libro, Long> {
 
-    // ✅ ESTE ES EL MÉTODO QUE FALTABA (para la búsqueda en el admin panel)
     List<Libro> findByTituloContainingIgnoreCase(String titulo);
 
-    // --- Métodos para el catálogo público con paginación ---
     Page<Libro> findByTituloContainingIgnoreCase(String titulo, Pageable pageable);
     
     Page<Libro> findByCategoriaId(Long categoriaId, Pageable pageable);

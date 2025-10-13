@@ -3,11 +3,11 @@ const bodyParser = require('body-parser');
 const PDFDocument = require('pdfkit');
 
 const app = express();
-const port = 4001; // ✅ El puerto correcto
+const port = 4001;
 
 app.use(bodyParser.json());
 
-// ✅ La ruta correcta
+
 app.post('/reporte-libros-vendidos', (req, res) => {
     try {
         console.log('Petición recibida para generar Reporte PDF...');
@@ -26,18 +26,15 @@ app.post('/reporte-libros-vendidos', (req, res) => {
             }).end(pdfData);
         });
 
-        // Header del documento
         doc.fontSize(20).text('Reporte de Libros Más Vendidos', { align: 'center' });
         doc.fontSize(12).text(`Generado el: ${fecha}`, { align: 'center' });
         doc.moveDown(2);
 
-        // Definir la tabla
         const tableTop = 150;
         const tableHeaders = ['ID del Libro', 'Título', 'Unidades Vendidas'];
         const columnWidths = [100, 300, 150];
         let currentX = 50;
 
-        // Dibujar encabezados de la tabla
         doc.fontSize(12).font('Helvetica-Bold');
         tableHeaders.forEach((header, i) => {
             doc.text(header, currentX, tableTop, { width: columnWidths[i], align: 'left' });
@@ -45,12 +42,10 @@ app.post('/reporte-libros-vendidos', (req, res) => {
         });
         doc.font('Helvetica');
         
-        // Línea debajo de los encabezados
         doc.moveTo(50, tableTop + 20)
            .lineTo(550, tableTop + 20)
            .stroke();
            
-        // Contenido de la tabla
         let currentY = tableTop + 30;
         libros.forEach(libro => {
             const rowData = [
@@ -65,7 +60,7 @@ app.post('/reporte-libros-vendidos', (req, res) => {
                 currentX += columnWidths[i];
             });
 
-            currentY += 25; // Espacio para la siguiente fila
+            currentY += 25; 
         });
 
         console.log('PDF generado exitosamente.');

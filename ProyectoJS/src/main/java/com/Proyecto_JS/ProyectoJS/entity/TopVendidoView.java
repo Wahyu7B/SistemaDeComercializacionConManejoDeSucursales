@@ -1,4 +1,3 @@
-// TopVendidoView.java
 
 package com.Proyecto_JS.ProyectoJS.entity;
 
@@ -14,5 +13,5 @@ public class TopVendidoView {
     @Id
     private Long id;
     private String nombre;
-    private Long totalVendido; // El campo se llama totalVendido
+    private Long totalVendido;
 }

@@ -1,4 +1,3 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/controller/web/SucursalController.java
 package com.Proyecto_JS.ProyectoJS.controller.web;
 
 import com.Proyecto_JS.ProyectoJS.entity.Sucursal;

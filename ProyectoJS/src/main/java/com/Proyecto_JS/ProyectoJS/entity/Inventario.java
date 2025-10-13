@@ -1,4 +1,3 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/entity/Inventario.java
 package com.Proyecto_JS.ProyectoJS.entity;
 
 import jakarta.persistence.*;
@@ -11,12 +10,10 @@ public class Inventario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ✅ LÍNEA CORREGIDA: Cambiado a FetchType.EAGER
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sucursal_id", nullable = false)
     private Sucursal sucursal;
 
-    // ✅ LÍNEA CORREGIDA: Cambiado a FetchType.EAGER
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "libro_id", nullable = false)
     private Libro libro;
@@ -27,7 +24,6 @@ public class Inventario {
     @Column(nullable = false)
     private boolean activo;
 
-    // --- Getters y Setters (se quedan igual) ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Sucursal getSucursal() { return sucursal; }

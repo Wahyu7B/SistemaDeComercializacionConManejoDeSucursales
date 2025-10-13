@@ -1,4 +1,3 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/controller/api/DeliveryApiController.java
 package com.Proyecto_JS.ProyectoJS.controller.api;
 
 import com.Proyecto_JS.ProyectoJS.service.GeolocalizacionService; // ✅ ESTA LÍNEA ES CRUCIAL

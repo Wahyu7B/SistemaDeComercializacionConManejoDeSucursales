@@ -17,11 +17,8 @@ public class AuthController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // --- MANEJADOR DEL REGISTRO ---
     @GetMapping("/registro")
     public String mostrarFormularioDeRegistro(Model model) {
-        // ✅ LA LÍNEA CLAVE: Añadimos un objeto vacío al modelo
-        // para que el formulario de Thymeleaf pueda enlazarlo.
         model.addAttribute("usuario", new UsuarioRegistroDTO());
         return "auth/registro";
     }
@@ -32,7 +29,6 @@ public class AuthController {
         return "redirect:/registro?exito";
     }
     
-    // --- MANEJADOR DEL LOGIN ---
     @GetMapping("/login")
     public String mostrarLogin() {
         return "auth/login";

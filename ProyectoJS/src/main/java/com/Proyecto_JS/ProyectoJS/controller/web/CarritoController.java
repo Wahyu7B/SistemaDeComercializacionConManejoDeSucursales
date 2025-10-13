@@ -1,4 +1,3 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/controller/web/CarritoController.java
 package com.Proyecto_JS.ProyectoJS.controller.web;
 
 import com.Proyecto_JS.ProyectoJS.entity.Carrito;
@@ -26,23 +25,19 @@ public class CarritoController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // Este método AHORA obtiene el carrito del usuario y lo muestra
     @GetMapping("")
     public String verCarrito(Model model) {
-        // Obtenemos el usuario logueado
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
 
-        // Obtenemos (o creamos) el carrito para ese usuario
         Carrito carrito = carritoService.obtenerCarritoDelUsuario(usuario.getId());
         model.addAttribute("carrito", carrito);
 
-        return "public/carrito"; // La nueva vista que vamos a crear
+        return "public/carrito";
     }
 
-    // Este método AHORA obtiene el carrito del usuario antes de agregar un item
     @PostMapping("/agregar")
     public String agregarAlCarrito(@RequestParam Long libroId,
                                    @RequestParam int cantidad,
@@ -61,7 +56,6 @@ public class CarritoController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al añadir el libro: " + e.getMessage());
         }
-        // Redirigimos al catálogo para que el usuario siga comprando
         return "redirect:/catalogo";
     }
 

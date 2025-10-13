@@ -1,10 +1,9 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/controller/web/HomeController.java
 package com.Proyecto_JS.ProyectoJS.controller.web;
 
 import com.Proyecto_JS.ProyectoJS.entity.Libro;
-import com.Proyecto_JS.ProyectoJS.entity.Sucursal; // Importar Sucursal
+import com.Proyecto_JS.ProyectoJS.entity.Sucursal;
 import com.Proyecto_JS.ProyectoJS.service.LibroService;
-import com.Proyecto_JS.ProyectoJS.service.SucursalService; // Importar SucursalService
+import com.Proyecto_JS.ProyectoJS.service.SucursalService; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

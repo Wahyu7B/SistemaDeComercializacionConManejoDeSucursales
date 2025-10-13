@@ -1,4 +1,3 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/dto/UsuarioRegistroDTO.java
 package com.Proyecto_JS.ProyectoJS.dto;
 
 public class UsuarioRegistroDTO {
@@ -7,7 +6,6 @@ public class UsuarioRegistroDTO {
     private String email;
     private String password;
 
-    // --- MÉTODOS GETTERS Y SETTERS ESCRITOS MANUALMENTE ---
 
     public String getNombreCompleto() {
         return nombreCompleto;

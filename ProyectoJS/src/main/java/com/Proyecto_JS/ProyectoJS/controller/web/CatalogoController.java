@@ -5,7 +5,6 @@ import com.Proyecto_JS.ProyectoJS.repository.CategoriaRepository;
 import com.Proyecto_JS.ProyectoJS.repository.LibroRepository;
 import com.Proyecto_JS.ProyectoJS.repository.SucursalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-// ✅ IMPORTS AÑADIDOS
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

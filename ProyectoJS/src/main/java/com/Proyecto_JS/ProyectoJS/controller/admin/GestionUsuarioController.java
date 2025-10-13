@@ -1,4 +1,3 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/controller/admin/GestionUsuarioController.java
 package com.Proyecto_JS.ProyectoJS.controller.admin;
 
 import com.Proyecto_JS.ProyectoJS.entity.Usuario;

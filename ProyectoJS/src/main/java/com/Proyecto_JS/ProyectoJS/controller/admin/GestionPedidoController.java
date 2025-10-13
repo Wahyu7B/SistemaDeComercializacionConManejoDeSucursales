@@ -1,4 +1,3 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/controller/admin/GestionPedidoController.java
 package com.Proyecto_JS.ProyectoJS.controller.admin;
 
 import com.Proyecto_JS.ProyectoJS.entity.Pedido;
@@ -21,16 +20,13 @@ public class GestionPedidoController {
     @Autowired
     private PedidoService pedidoService;
 
-    // Muestra la lista de pedidos pendientes
     @GetMapping("")
     public String mostrarPedidosParaGestionar(Model model) {
-        // Usamos el método que creamos para buscar pedidos por estado
         List<Pedido> pedidosPendientes = pedidoService.obtenerPedidosPorEstado(Pedido.EstadoPedido.PAGO_EN_REVISION);
         model.addAttribute("pedidos", pedidosPendientes);
-        return "admin/gestionar-pedidos"; // La nueva vista que vamos a crear
+        return "admin/gestionar-pedidos"; 
     }
 
-    // Procesa la acción de confirmar un pedido
     @PostMapping("/confirmar")
     public String confirmarPedido(@RequestParam("pedidoId") Long pedidoId, RedirectAttributes attributes) {
         try {

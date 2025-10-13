@@ -17,15 +17,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                // Reglas para páginas públicas (se quedan igual)
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/", "/catalogo/**", "/registro").permitAll()
 
                 .requestMatchers("/carrito/**", "/perfil").authenticated()
                 
-                // ✅ NUEVA REGLA: Solo los ADMIN pueden acceder a /admin/**
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 
-                // Cualquier otra petición requiere autenticación (se queda igual)
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

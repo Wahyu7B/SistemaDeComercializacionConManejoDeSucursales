@@ -1,11 +1,10 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/controller/web/PedidoController.java
 package com.Proyecto_JS.ProyectoJS.controller.web;
 
 import com.Proyecto_JS.ProyectoJS.entity.Carrito;
 import com.Proyecto_JS.ProyectoJS.entity.Pedido;
 import com.Proyecto_JS.ProyectoJS.entity.Usuario;
 import com.Proyecto_JS.ProyectoJS.exception.RecursoNoEncontradoException;
-import com.Proyecto_JS.ProyectoJS.repository.SucursalRepository; // ✅ 1. IMPORTA ESTO
+import com.Proyecto_JS.ProyectoJS.repository.SucursalRepository;
 import com.Proyecto_JS.ProyectoJS.repository.UsuarioRepository;
 import com.Proyecto_JS.ProyectoJS.service.CarritoService;
 import com.Proyecto_JS.ProyectoJS.service.PedidoService;
@@ -33,26 +32,22 @@ public class PedidoController {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private SucursalRepository sucursalRepository; // ✅ 2. AÑADE ESTA LÍNEA
+    private SucursalRepository sucursalRepository;
 
     @GetMapping("/checkout")
     public String mostrarCheckout(Model model) {
-        // Obtenemos el usuario logueado
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Usuario usuario = usuarioRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
 
-        // Obtenemos su carrito y lo pasamos a la vista
         Carrito carrito = carritoService.obtenerCarritoDelUsuario(usuario.getId());
         model.addAttribute("carrito", carrito);
         
-        // ✅ 3. AÑADE ESTA LÍNEA PARA ENVIAR LAS SUCURSALES
         model.addAttribute("sucursales", sucursalRepository.findAll());
         
         return "public/checkout";
     }
 
-    // He actualizado este método para que coincida con los campos del formulario del checkout
     @PostMapping("/procesar")
     public String procesarPedido(@RequestParam Long carritoId,
                                  @RequestParam String tipoEntrega,

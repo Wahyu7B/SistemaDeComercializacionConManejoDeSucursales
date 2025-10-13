@@ -1,4 +1,3 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/controller/admin/GestionLibroController.java
 package com.Proyecto_JS.ProyectoJS.controller.admin;
 
 import com.Proyecto_JS.ProyectoJS.entity.Categoria;
@@ -27,7 +26,6 @@ public class GestionLibroController {
     @Autowired private InventarioService inventarioService;
     @Autowired private CategoriaService categoriaService;
 
-    // Este es el ÚNICO método GET. Muestra la página principal de gestión.
     @GetMapping("")
     public String mostrarInventario(Model model) {
         model.addAttribute("inventario", inventarioService.obtenerTodoElInventario());
@@ -36,7 +34,6 @@ public class GestionLibroController {
         return "admin/gestionar-libros";
     }
     
-    // Procesa el formulario del modal para guardar un nuevo libro
     @PostMapping("/guardar")
     public String guardarLibro(@ModelAttribute("libroNuevo") Libro libro, RedirectAttributes attributes) {
         try {
@@ -51,7 +48,6 @@ public class GestionLibroController {
         return "redirect:/admin/libros";
     }
 
-    // Procesa los formularios de la tabla para actualizar stock
     @PostMapping("/actualizar-stock")
     public String actualizarStock(@RequestParam Long inventarioId, @RequestParam int nuevoStock, RedirectAttributes attributes) {
         try {
