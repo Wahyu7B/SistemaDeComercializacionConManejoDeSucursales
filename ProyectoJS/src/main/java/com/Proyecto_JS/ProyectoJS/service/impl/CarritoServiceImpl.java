@@ -28,7 +28,7 @@ public class CarritoServiceImpl implements CarritoService {
     private UsuarioRepository usuarioRepository; 
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Carrito obtenerCarritoDelUsuario(Long usuarioId) {
         return carritoRepository.findByUsuarioIdAndEstado(usuarioId, Carrito.EstadoCarrito.ABIERTO)
                 .orElseGet(() -> {

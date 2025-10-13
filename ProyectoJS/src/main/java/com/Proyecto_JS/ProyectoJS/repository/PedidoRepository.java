@@ -10,6 +10,10 @@ import java.util.List;
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
+    // ... dentro de la interfaz PedidoRepository
+
     List<Pedido> findByUsuario(Usuario usuario);
-    
+
+    // AÑADE ESTA LÍNEA
+    List<Pedido> findByEstado(Pedido.EstadoPedido estado);
 }

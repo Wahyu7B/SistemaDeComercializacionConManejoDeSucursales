@@ -1,8 +1,10 @@
+// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/service/impl/PedidoServiceImpl.java
 package com.Proyecto_JS.ProyectoJS.service.impl;
 
 import com.Proyecto_JS.ProyectoJS.entity.*;
 import com.Proyecto_JS.ProyectoJS.exception.RecursoNoEncontradoException;
 import com.Proyecto_JS.ProyectoJS.repository.*;
+import com.Proyecto_JS.ProyectoJS.service.NotificacionService; // ✅ 1. IMPORTAR NUEVO SERVICIO
 import com.Proyecto_JS.ProyectoJS.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -28,12 +31,12 @@ public class PedidoServiceImpl implements PedidoService {
     @Autowired
     private InventarioRepository inventarioRepository;
     @Autowired
-    private PedidoDetalleRepository pedidoDetalleRepository;
+    private NotificacionService notificacionService;
 
+    // Tu método crearPedido se queda exactamente igual
     @Override
-    @Transactional 
+    @Transactional
     public Pedido crearPedido(Long carritoId, Long direccionEnvioId, String tipoEntrega, Long sucursalRecojoId) {
-        
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Carrito no encontrado con id: " + carritoId));
 
@@ -44,8 +47,9 @@ public class PedidoServiceImpl implements PedidoService {
         Pedido pedido = new Pedido();
         pedido.setUsuario(carrito.getUsuario());
         pedido.setCarrito(carrito);
-        pedido.setMoneda("PEN"); 
-        pedido.setEstado(Pedido.EstadoPedido.CREADO);
+        pedido.setMoneda("PEN");
+        // Cambiamos el estado inicial para reflejar que necesita revisión
+        pedido.setEstado(Pedido.EstadoPedido.PAGO_EN_REVISION); 
         pedido.setCreatedAt(LocalDateTime.now());
         pedido.setUpdatedAt(LocalDateTime.now());
 
@@ -90,6 +94,7 @@ public class PedidoServiceImpl implements PedidoService {
         return pedidoGuardado;
     }
 
+    // Tu método actualizarStock se queda igual
     private void actualizarStock(CarritoItem item) {
         Inventario inventario = inventarioRepository.findBySucursalAndLibro(item.getSucursal(), item.getLibro())
                 .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró inventario para el libro " + item.getLibro().getTitulo() + " en la sucursal " + item.getSucursal().getNombre()));
@@ -102,8 +107,67 @@ public class PedidoServiceImpl implements PedidoService {
         inventarioRepository.save(inventario);
     }
 
+    // Tu método obtenerPedidosPorUsuario se queda igual
     @Override
     public List<Pedido> obtenerPedidosPorUsuario(Usuario usuario) {
         return pedidoRepository.findByUsuario(usuario);
+    }
+
+    // ✅ 3. IMPLEMENTACIÓN DE LOS NUEVOS MÉTODOS
+    @Override
+    @Transactional
+    public void confirmarPedido(Long pedidoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Pedido no encontrado con id: " + pedidoId));
+
+        pedido.setEstado(Pedido.EstadoPedido.PAGADO);
+        pedido.setUpdatedAt(LocalDateTime.now());
+        pedidoRepository.save(pedido);
+
+        // ¡Aquí es donde llamamos al microservicio de Node.js!
+        notificacionService.enviarConfirmacionDePedido(
+            pedido.getUsuario().getEmail(), 
+            pedido.getId()
+        );
+    }
+
+    @Override
+    public List<Pedido> obtenerPedidosPorEstado(Pedido.EstadoPedido estado) {
+        return pedidoRepository.findByEstado(estado);
+    }
+
+    @Override
+    public Optional<Pedido> obtenerPedidoPorId(Long id) {
+        return pedidoRepository.findById(id);
+    }
+
+    @Override
+    @Transactional
+    public void rechazarPedido(Long pedidoId) {
+        // 1. Buscamos el pedido
+        Pedido pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Pedido no encontrado con id: " + pedidoId));
+
+        // 2. Cambiamos su estado a ANULADO
+        pedido.setEstado(Pedido.EstadoPedido.ANULADO);
+        pedido.setUpdatedAt(LocalDateTime.now());
+        
+        // 3. LÓGICA CLAVE: Devolvemos el stock al inventario
+        for (PedidoDetalle detalle : pedido.getDetalles()) {
+            Inventario inventario = inventarioRepository.findBySucursalAndLibro(detalle.getSucursalOrigen(), detalle.getLibro())
+                    .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró inventario para el libro " + detalle.getLibro().getTitulo()));
+            
+            // Sumamos la cantidad del pedido de vuelta al stock de venta
+            inventario.setStockVenta(inventario.getStockVenta() + detalle.getCantidad());
+            inventarioRepository.save(inventario);
+        }
+
+        pedidoRepository.save(pedido);
+            notificacionService.enviarRechazoDePedido(
+            pedido.getUsuario().getEmail(),
+            pedido.getId()
+        );
+        
+        // Opcional: Podríamos llamar a NotificacionService para enviar un correo de "Pedido Rechazado".
     }
 }

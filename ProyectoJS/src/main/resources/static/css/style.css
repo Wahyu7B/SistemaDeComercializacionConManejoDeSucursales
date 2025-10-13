@@ -168,3 +168,33 @@ footer {
     background-color: #fdfaf7; /* Un color crema muy suave, como el hero */
     border-top: 1px solid #eee;
 }
+
+/* Estilos para la página del Carrito */
+.cart-item {
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-summary {
+    background-color: #fdfaf7; /* Color crema suave */
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+/* Estilos para la página del Carrito */
+.cart-item {
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-summary {
+    background-color: #fdfaf7; /* Color crema suave */
+    border: 1px solid #eee;
+    border-radius: 4px;
+}

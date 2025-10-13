@@ -1,7 +1,9 @@
+// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/entity/Carrito.java
 package com.Proyecto_JS.ProyectoJS.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet; // <-- 1. Importar HashSet
 import java.util.Set;
 
 @Entity
@@ -29,8 +31,9 @@ public class Carrito {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    // ✅ 2. LÍNEA CORREGIDA: Inicializamos el Set para que nunca sea null.
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CarritoItem> items;
+    private Set<CarritoItem> items = new HashSet<>();
 
     public enum EstadoCarrito {
         ABIERTO, COMPRADO, CANCELADO
@@ -91,6 +94,7 @@ public class Carrito {
     public void setItems(Set<CarritoItem> items) {
         this.items = items;
     }
-    
 
+    // --- Getters y Setters (se quedan igual) ---
+    // ...
 }

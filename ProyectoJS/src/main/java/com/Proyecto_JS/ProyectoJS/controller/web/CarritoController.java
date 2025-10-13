@@ -1,7 +1,14 @@
+// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/controller/web/CarritoController.java
 package com.Proyecto_JS.ProyectoJS.controller.web;
 
+import com.Proyecto_JS.ProyectoJS.entity.Carrito;
+import com.Proyecto_JS.ProyectoJS.entity.Usuario;
+import com.Proyecto_JS.ProyectoJS.exception.RecursoNoEncontradoException;
+import com.Proyecto_JS.ProyectoJS.repository.UsuarioRepository;
 import com.Proyecto_JS.ProyectoJS.service.CarritoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,32 +23,56 @@ public class CarritoController {
 
     @Autowired
     private CarritoService carritoService;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
+    // Este método AHORA obtiene el carrito del usuario y lo muestra
     @GetMapping("")
     public String verCarrito(Model model) {
-        return "public/carrito"; 
+        // Obtenemos el usuario logueado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+
+        // Obtenemos (o creamos) el carrito para ese usuario
+        Carrito carrito = carritoService.obtenerCarritoDelUsuario(usuario.getId());
+        model.addAttribute("carrito", carrito);
+
+        return "public/carrito"; // La nueva vista que vamos a crear
     }
 
+    // Este método AHORA obtiene el carrito del usuario antes de agregar un item
     @PostMapping("/agregar")
     public String agregarAlCarrito(@RequestParam Long libroId,
                                    @RequestParam int cantidad,
                                    @RequestParam Long sucursalId,
                                    RedirectAttributes redirectAttributes) {
         try {
-            Long carritoId = 1L;
-            carritoService.agregarLibroAlCarrito(carritoId, libroId, cantidad, sucursalId);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String email = auth.getName();
+            Usuario usuario = usuarioRepository.findByEmail(email)
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+            
+            Carrito carrito = carritoService.obtenerCarritoDelUsuario(usuario.getId());
+            
+            carritoService.agregarLibroAlCarrito(carrito.getId(), libroId, cantidad, sucursalId);
             redirectAttributes.addFlashAttribute("successMessage", "Libro añadido al carrito.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al añadir el libro: " + e.getMessage());
         }
-        return "redirect:/catalogo/libro/" + libroId;
+        // Redirigimos al catálogo para que el usuario siga comprando
+        return "redirect:/catalogo";
     }
-    
 
     @PostMapping("/eliminar")
     public String eliminarDelCarrito(@RequestParam Long itemId, RedirectAttributes redirectAttributes) {
-
-        redirectAttributes.addFlashAttribute("successMessage", "Item eliminado del carrito.");
+        try {
+            carritoService.eliminarLibroDelCarrito(itemId);
+            redirectAttributes.addFlashAttribute("successMessage", "Item eliminado del carrito.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar el item.");
+        }
         return "redirect:/carrito";
     }
 }
