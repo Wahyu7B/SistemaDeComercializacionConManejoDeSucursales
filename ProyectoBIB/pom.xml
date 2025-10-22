@@ -7,11 +7,11 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.12</version>
         <relativePath/> </parent>
-    <groupId>com.Proyecto_JS</groupId>
-    <artifactId>ProyectoJS</artifactId>
+    <groupId>com.ProyectoBIB</groupId>
+    <artifactId>ProyectoBIB</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>ProyectoJS</name>
-    <description>Proyecto de JavaScript</description>
+    <name>ProyectoBIB</name>
+    <description>Proyecto de Biblioteca</description>
     <properties>
         <java.version>21</java.version>
     </properties>
@@ -36,7 +36,6 @@
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
