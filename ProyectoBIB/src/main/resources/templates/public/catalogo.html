@@ -12,10 +12,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Iconos de Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body>
     <header class="sticky-top">
-<nav class="navbar navbar-expand-lg px-4 py-3">
+        <nav class="navbar navbar-expand-lg px-4 py-3">
             <div class="container">
                 <a class="navbar-brand" th:href="@{/}">
                     <img th:src="@{/images/LogoCIX.png}" alt="Logo Biblioteca Municipal CIX" class="logo-img">
@@ -102,12 +104,38 @@
                                 <p class="book-author text-muted mb-2" th:text="${libro.autor}">Autor</p>
                                 <div class="mt-auto">
                                     <p class="book-price fw-semibold" th:text="'S/ ' + ${#numbers.formatDecimal(libro.precioVenta, 1, 2)}">S/ 0.00</p>
-                                    <button class="btn btn-link p-0 text-decoration-none" data-bs-toggle="modal" data-bs-target="#modalDetalleLibro" 
+                                    
+                                    <!-- Botón Ver detalles -->
+                                    <button class="btn btn-link p-0 text-decoration-none mb-2 d-block" data-bs-toggle="modal" data-bs-target="#modalDetalleLibro" 
                                         th:data-libro-id="${libro.id}" th:data-titulo="${libro.titulo}" th:data-autor="${libro.autor}" th:data-editorial="${libro.editorial}"
                                         th:data-anio="${libro.anio}" th:data-isbn="${libro.isbn}" th:data-descripcion="${libro.descripcion}" 
                                         th:data-precio="${libro.precioVenta}" th:data-portada="${libro.portadaUrl ?: '/images/default-cover.jpg'}">
                                         Ver detalles →
                                     </button>
+                                    
+                                    <!-- Botones de Préstamo y Devolución -->
+                                    <div class="d-grid gap-2">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <button class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalPrestamoLibro"
+                                                    th:data-libro-id="${libro.id}" 
+                                                    th:data-titulo="${libro.titulo}" 
+                                                    th:data-autor="${libro.autor}" 
+                                                    th:data-portada="${libro.portadaUrl ?: '/images/default-cover.jpg'}">
+                                                    <i class="bi bi-book"></i> Préstamo
+                                                </button>
+                                            </div>
+                                            <div class="col-6">
+                                                <button class="btn btn-warning btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalDevolucionLibro"
+                                                    th:data-libro-id="${libro.id}" 
+                                                    th:data-titulo="${libro.titulo}" 
+                                                    th:data-autor="${libro.autor}" 
+                                                    th:data-portada="${libro.portadaUrl ?: '/images/default-cover.jpg'}">
+                                                    <i class="bi bi-arrow-repeat"></i> Devolución
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -137,10 +165,12 @@
         </div>
     </footer>
 
+    <!-- Modal de Detalle de Libro (Compra) -->
     <div class="modal fade" id="modalDetalleLibro" tabindex="-1" aria-labelledby="modalDetalleLibroLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" id="modalDetalleLibroLabel"><i class="bi bi-cart-plus"></i> Detalles del Libro</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body py-0">
@@ -156,6 +186,36 @@
         </div>
     </div>
 
+    <!-- Modal para Préstamo de Libros -->
+    <div class="modal fade" id="modalPrestamoLibro" tabindex="-1" aria-labelledby="modalPrestamoLibroLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="modalPrestamoLibroLabel"><i class="bi bi-book"></i> Solicitar Préstamo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="contenidoModalPrestamo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Devolución de Libros -->
+    <div class="modal fade" id="modalDevolucionLibro" tabindex="-1" aria-labelledby="modalDevolucionLibroLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="modalDevolucionLibroLabel"><i class="bi bi-arrow-repeat"></i> Devolución de Libro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="contenidoModalDevolucion"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
@@ -163,6 +223,7 @@
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
             const sucursales = /*[[${sucursales}]]*/ [];
 
+            // Modal de Detalle (Compra) - Código existente
             const modalElement = document.getElementById('modalDetalleLibro');
             const contenidoModal = document.getElementById('contenidoModalDetalle');
 
@@ -213,7 +274,7 @@
                                             <select name="sucursalId" class="form-select" required>${sucursalOptions}</select>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-dark w-100">Añadir al Carrito</button>
+                                    <button type="submit" class="btn btn-dark w-100"><i class="bi bi-cart-plus"></i> Añadir al Carrito</button>
                                 </form>
                             </div>
                         </div>
@@ -245,6 +306,228 @@
                             }
                         })
                         .catch(() => alert('⚠️ Error de conexión.'));
+                    });
+                }
+            });
+
+            // Modal de Préstamo - NUEVO
+            const modalPrestamo = document.getElementById('modalPrestamoLibro');
+            const contenidoModalPrestamo = document.getElementById('contenidoModalPrestamo');
+
+            modalPrestamo.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const libro = {
+                    id: button.getAttribute('data-libro-id'),
+                    titulo: button.getAttribute('data-titulo'),
+                    autor: button.getAttribute('data-autor'),
+                    portada: button.getAttribute('data-portada')
+                };
+
+                let sucursalOptions = '';
+                if (sucursales && sucursales.length > 0) {
+                    sucursales.forEach(sucursal => {
+                        sucursalOptions += `<option value="${sucursal.id}">${sucursal.nombre}</option>`;
+                    });
+                }
+
+                // Calcular fechas
+                const fechaActual = new Date();
+                const fechaDevolucion = new Date(fechaActual);
+                fechaDevolucion.setDate(fechaActual.getDate() + 15);
+                const fechaDevolucionStr = fechaDevolucion.toLocaleDateString('es-PE');
+
+                contenidoModalPrestamo.innerHTML = `
+                    <div class="row g-3 mb-3">
+                        <div class="col-4">
+                            <img src="${libro.portada}" class="img-fluid rounded" alt="${libro.titulo}" style="max-height: 120px; object-fit: cover;">
+                        </div>
+                        <div class="col-8">
+                            <h6 class="mb-1">${libro.titulo}</h6>
+                            <p class="text-muted mb-0 small">${libro.autor}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <form id="formPrestamoModal" data-libro-id="${libro.id}">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-medium"><i class="bi bi-geo-alt"></i> Sucursal de Recojo</label>
+                                <select name="sucursalId" class="form-select" required>
+                                    <option value="">Seleccionar sucursal...</option>
+                                    ${sucursalOptions}
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-medium"><i class="bi bi-calendar"></i> Fecha de Préstamo</label>
+                                <input type="date" name="fechaPrestamo" class="form-control" value="${fechaActual.toISOString().split('T')[0]}" required readonly>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-medium"><i class="bi bi-calendar-check"></i> Fecha de Devolución</label>
+                                <input type="text" class="form-control" value="${fechaDevolucionStr}" readonly>
+                                <small class="text-muted">15 días calendario</small>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-medium"><i class="bi bi-chat-dots"></i> Notas adicionales (opcional)</label>
+                                <textarea name="notas" class="form-control" rows="2" placeholder="Comentarios o solicitudes especiales..."></textarea>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-book"></i> Solicitar Préstamo
+                            </button>
+                        </div>
+                    </form>
+                `;
+                
+                const formPrestamo = contenidoModalPrestamo.querySelector('#formPrestamoModal');
+                if (formPrestamo) {
+                    formPrestamo.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(formPrestamo);
+                        const body = new URLSearchParams();
+                        formData.forEach((value, key) => body.append(key, value));
+                        body.append('libroId', formPrestamo.getAttribute('data-libro-id'));
+
+                        // Simulación de envío - Aquí conectarías con tu backend
+                        console.log('Datos del préstamo:', Object.fromEntries(body));
+                        
+                        // Para implementar con Spring Boot:
+                        /*
+                        fetch('/prestamos/solicitar', {
+                            method: 'POST',
+                            headers: { [csrfHeader]: csrfToken },
+                            body: body
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                alert('✅ Solicitud de préstamo registrada correctamente.');
+                                bootstrap.Modal.getInstance(modalPrestamo).hide();
+                            } else {
+                                alert('❌ Error al procesar la solicitud.');
+                            }
+                        })
+                        .catch(() => alert('⚠️ Error de conexión.'));
+                        */
+                        
+                        // Simulación por ahora
+                        setTimeout(() => {
+                            alert('✅ Solicitud de préstamo registrada correctamente.\n\n📋 Código de préstamo: PRS-' + Date.now().toString().slice(-6) + '\n📍 Sucursal: ' + formData.get('sucursalId') + '\n📅 Fecha límite: ' + fechaDevolucionStr);
+                            bootstrap.Modal.getInstance(modalPrestamo).hide();
+                        }, 500);
+                    });
+                }
+            });
+
+            // Modal de Devolución - NUEVO
+            const modalDevolucion = document.getElementById('modalDevolucionLibro');
+            const contenidoModalDevolucion = document.getElementById('contenidoModalDevolucion');
+
+            modalDevolucion.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const libro = {
+                    id: button.getAttribute('data-libro-id'),
+                    titulo: button.getAttribute('data-titulo'),
+                    autor: button.getAttribute('data-autor'),
+                    portada: button.getAttribute('data-portada')
+                };
+
+                let sucursalOptions = '';
+                if (sucursales && sucursales.length > 0) {
+                    sucursales.forEach(sucursal => {
+                        sucursalOptions += `<option value="${sucursal.id}">${sucursal.nombre}</option>`;
+                    });
+                }
+
+                const fechaActual = new Date().toISOString().split('T')[0];
+
+                contenidoModalDevolucion.innerHTML = `
+                    <div class="row g-3 mb-3">
+                        <div class="col-4">
+                            <img src="${libro.portada}" class="img-fluid rounded" alt="${libro.titulo}" style="max-height: 120px; object-fit: cover;">
+                        </div>
+                        <div class="col-8">
+                            <h6 class="mb-1">${libro.titulo}</h6>
+                            <p class="text-muted mb-0 small">${libro.autor}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <form id="formDevolucionModal" data-libro-id="${libro.id}">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-medium"><i class="bi bi-upc-scan"></i> Código de Préstamo</label>
+                                <input type="text" name="codigoPrestamo" class="form-control" placeholder="Ej: PRS-2025-001234" required>
+                                <small class="text-muted">Código proporcionado al momento del préstamo</small>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-medium"><i class="bi bi-geo-alt"></i> Sucursal de Devolución</label>
+                                <select name="sucursalId" class="form-select" required>
+                                    <option value="">Seleccionar sucursal...</option>
+                                    ${sucursalOptions}
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-medium"><i class="bi bi-calendar"></i> Fecha de Devolución</label>
+                                <input type="date" name="fechaDevolucion" class="form-control" value="${fechaActual}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-medium"><i class="bi bi-clipboard-check"></i> Estado del Libro</label>
+                                <select name="estadoLibro" class="form-select" required>
+                                    <option value="">Seleccionar estado...</option>
+                                    <option value="excelente"><i class="bi bi-star-fill"></i> Excelente estado</option>
+                                    <option value="bueno">👍 Buen estado</option>
+                                    <option value="regular">⚠️ Estado regular</option>
+                                    <option value="malo">❌ Estado deteriorado</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-medium"><i class="bi bi-chat-square-text"></i> Observaciones (opcional)</label>
+                                <textarea name="observaciones" class="form-control" rows="2" placeholder="Describe el estado del libro o cualquier incidencia..."></textarea>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-arrow-repeat"></i> Procesar Devolución
+                            </button>
+                        </div>
+                    </form>
+                `;
+                
+                const formDevolucion = contenidoModalDevolucion.querySelector('#formDevolucionModal');
+                if (formDevolucion) {
+                    formDevolucion.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const formData = new FormData(formDevolucion);
+                        const body = new URLSearchParams();
+                        formData.forEach((value, key) => body.append(key, value));
+                        body.append('libroId', formDevolucion.getAttribute('data-libro-id'));
+
+                        // Simulación de envío - Aquí conectarías con tu backend
+                        console.log('Datos de devolución:', Object.fromEntries(body));
+                        
+                        // Para implementar con Spring Boot:
+                        /*
+                        fetch('/prestamos/devolver', {
+                            method: 'POST',
+                            headers: { [csrfHeader]: csrfToken },
+                            body: body
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                alert('✅ Devolución procesada correctamente.');
+                                bootstrap.Modal.getInstance(modalDevolucion).hide();
+                            } else {
+                                alert('❌ Error al procesar la devolución.');
+                            }
+                        })
+                        .catch(() => alert('⚠️ Error de conexión.'));
+                        */
+                        
+                        // Simulación por ahora
+                        setTimeout(() => {
+                            alert('✅ Devolución procesada correctamente.\n\n📋 Código: ' + formData.get('codigoPrestamo') + '\n📍 Sucursal: ' + formData.get('sucursalId') + '\n📅 Fecha: ' + formData.get('fechaDevolucion') + '\n📊 Estado: ' + formData.get('estadoLibro'));
+                            bootstrap.Modal.getInstance(modalDevolucion).hide();
+                        }, 500);
                     });
                 }
             });

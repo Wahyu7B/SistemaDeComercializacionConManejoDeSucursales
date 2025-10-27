@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Reportes | Administración</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Agregar Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
@@ -33,37 +35,109 @@
 
         <main class="content p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="display-5">Reporte de Libros Más Vendidos</h1>
-                <a th:href="@{/admin/reportes/descargar-top-vendidos}" class="btn btn-success">
-                    Descargar PDF
-                </a>
+                <h1 class="display-5">Reportes del Sistema</h1>
             </div>
 
+            <!-- SECCIÓN DE BOTONES DE EXPORTACIÓN -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-download"></i> Opciones de Exportación</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Reportes de Top Vendidos -->
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-muted mb-3">Top Libros Vendidos</h6>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                                <!-- Botón PDF existente -->
+                                <a th:href="@{/admin/reportes/descargar-top-vendidos}" class="btn btn-danger">
+                                    <i class="bi bi-file-pdf"></i> Descargar PDF
+                                </a>
+                                
+                                <!-- NUEVO Botón Excel -->
+                                <a th:href="@{/admin/reportes/exportar-top-vendidos-excel}" class="btn btn-success">
+                                    <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Catálogo Completo -->
+                        <div class="col-md-6">
+                            <h6 class="fw-bold text-muted mb-3">Catálogo Completo</h6>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                                <!-- NUEVO Botón para catálogo completo -->
+                                <a th:href="@{/admin/reportes/exportar-catalogo-excel}" class="btn btn-primary">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Catálogo Excel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información adicional -->
+                    <hr class="my-3">
+
+                </div>
+            </div>
+
+            <!-- TABLA EXISTENTE DE TOP VENDIDOS -->
             <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-graph-up-arrow"></i> Reporte de Libros Más Vendidos</h5>
+                </div>
                 <div class="card-body">
                     <table class="table table-striped table-hover">
                         <thead class="table-dark">
                             <tr>
-                                <th>ID Libro</th>
-                                <th>Título</th>
-                                <th>Total Vendido</th>
+                                <th><i class="bi bi-hash"></i> ID Libro</th>
+                                <th><i class="bi bi-book"></i> Título</th>
+                                <th><i class="bi bi-cart-check"></i> Total Vendido</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="item : ${topVendidos}">
                                 <td th:text="${item.id}"></td>
                                 <td th:text="${item.nombre}"></td>
-                                <td th:text="${item.totalVendido}"></td>
+                                <td>
+                                    <span class="badge bg-success fs-6" th:text="${item.totalVendido}"></span>
+                                </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(topVendidos)}">
-                                <td colspan="3" class="text-center">No hay datos de ventas disponibles.</td>
+                                <td colspan="3" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="bi bi-inbox display-4"></i>
+                                        <p class="mt-2 mb-0">No hay datos de ventas disponibles.</p>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
         </main>
     </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const downloadButtons = document.querySelectorAll('a[href*="exportar"], a[href*="descargar"]');
+            
+            downloadButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const buttonText = this.textContent.trim();
+                    
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generando...';
+                    this.classList.add('disabled');
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.classList.remove('disabled');
+                    }, 3000);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
