@@ -11,7 +11,6 @@ public interface UsuarioService {
 
     List<Usuario> obtenerTodosLosUsuarios();
 
-    // ✅ NUEVOS MÉTODOS AÑADIDOS
     Usuario cambiarRol(Long usuarioId, Usuario.Rol nuevoRol);
 
     Usuario cambiarEstado(Long usuarioId, Usuario.EstadoUsuario nuevoEstado);

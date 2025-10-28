@@ -1,11 +1,10 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/controller/web/AuthController.java
 package com.Proyecto_JS.ProyectoJS.controller.web;
 
 import com.Proyecto_JS.ProyectoJS.dto.UsuarioRegistroDTO;
 import com.Proyecto_JS.ProyectoJS.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model; // Asegúrate de importar Model
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
