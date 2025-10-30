@@ -18,11 +18,8 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/", "/catalogo/**", "/registro").permitAll()
-
                 .requestMatchers("/carrito/**", "/perfil").authenticated()
-                
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
@@ -34,9 +31,15 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/admin/reportes/exportar-catalogo-excel")
+                .ignoringRequestMatchers("/admin/reportes/exportar-top-vendidos-excel")
             );
+            
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

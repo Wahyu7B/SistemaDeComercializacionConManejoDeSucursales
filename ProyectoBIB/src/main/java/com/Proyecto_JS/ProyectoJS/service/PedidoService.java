@@ -5,6 +5,9 @@ import com.Proyecto_JS.ProyectoJS.entity.Pedido;
 import com.Proyecto_JS.ProyectoJS.entity.Usuario;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public interface PedidoService {
 
@@ -12,7 +15,6 @@ public interface PedidoService {
     
     List<Pedido> obtenerPedidosPorUsuario(Usuario usuario);
 
-    // ✅ NUEVOS MÉTODOS AÑADIDOS
     void confirmarPedido(Long pedidoId);
     
     List<Pedido> obtenerPedidosPorEstado(Pedido.EstadoPedido estado);

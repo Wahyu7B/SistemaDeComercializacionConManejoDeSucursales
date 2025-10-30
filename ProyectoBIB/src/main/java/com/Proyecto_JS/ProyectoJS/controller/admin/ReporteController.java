@@ -12,13 +12,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
 @Controller
 @RequestMapping("/admin/reportes")
 public class ReporteController {
+    private static final Logger log = LoggerFactory.getLogger(ReporteController.class);
 
     @Autowired
     private TopVendidoRepository topVendidoRepository;
@@ -52,24 +54,51 @@ public class ReporteController {
             .body(pdfBytes);
     }
     
-    // Para exportar en excel 
+    // Para exportar catálogo completo en excel 
     @GetMapping("/exportar-catalogo-excel")
     public ResponseEntity<byte[]> exportarCatalogoExcel() {
+        log.info("Solicitud de exportación de catálogo Excel");
         try {
             byte[] excelBytes = excelService.generarCatalogoExcel();
-            
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Catalogo_Libros.xlsx\"");
+            headers.setContentType(MediaType.parseMediaType(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            headers.setContentLength(excelBytes.length);
+
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Catalogo_Libros.xlsx\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .headers(headers)
                 .body(excelBytes);
-                
+
         } catch (IOException e) {
-            // logger por si un error
-            System.err.println("Error al generar Excel: " + e.getMessage());
+            log.error("Error al generar Excel: {}", e.getMessage());
             return ResponseEntity.status(500)
                 .body("Error al generar el archivo Excel".getBytes());
         }
     }
 
-    
+    // Para exportar top vendidos en excel
+    @GetMapping("/exportar-top-vendidos-excel")
+    public ResponseEntity<byte[]> exportarTopVendidosExcel() {
+        log.info("Solicitud de exportación de top vendidos Excel");
+        try {
+            byte[] excelBytes = excelService.generarTopVendidosExcel();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Top_Vendidos.xlsx\"");
+            headers.setContentType(MediaType.parseMediaType(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            headers.setContentLength(excelBytes.length);
+
+            return ResponseEntity.ok()
+                .headers(headers)
+                .body(excelBytes);
+
+        } catch (IOException e) {
+            log.error("Error al generar Excel de top vendidos: {}", e.getMessage());
+            return ResponseEntity.status(500)
+                .body("Error al generar el archivo Excel".getBytes());
+        }
+    }
 }
