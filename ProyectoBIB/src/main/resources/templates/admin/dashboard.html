@@ -2,39 +2,413 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Administrador</title>
+    <title>Dashboard Ejecutivo - Libros como Alas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/admin.css}"> </head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        /* Estilos adicionales para corregir layout */
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar-custom {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1.5s ease-out;
+        }
+        .stats-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        .chart-section {
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+            padding: 24px;
+            min-height: 320px;
+            position: relative;
+        }
+    </style>
+</head>
 <body>
     <div class="admin-wrapper">
-        <aside class="sidebar p-3">
-            <h4 class="text-light mb-4 border-bottom pb-3">Admin Panel</h4>
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/admin/pedidos}">Gestionar Pedidos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/admin/libros}">Gestionar Libros</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/admin/usuarios}">Gestionar Usuarios</a>
-                </li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/reportes}">Ver Reportes</a></li>
-            </ul>
-            <hr class="text-secondary">
-            <li class="nav-item">
-                <a class="nav-link" th:href="@{/}">← Volver a la Tienda</a>
-            </li>
+        <!-- Sidebar Premium -->
+        <aside class="sidebar">
+            <div class="brand">
+                <h4><i class="bi bi-book-half me-2"></i>Libros como Alas</h4>
+                <small>Dashboard Ejecutivo</small>
+            </div>
+            
+            <nav>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/admin/dashboard}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/pedidos}">
+                            <i class="bi bi-cart3"></i> Pedidos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/libros}">
+                            <i class="bi bi-book"></i> Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/usuarios}">
+                            <i class="bi bi-people"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/reportes}">
+                            <i class="bi bi-graph-up-arrow"></i> Analytics
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="user-info mt-auto">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff&size=64" alt="Admin">
+                <p class="mb-1">Administrador</p>
+                <small>Sistema activo</small>
+            </div>
+            
+            <div class="mt-3">
+                <a class="nav-link" th:href="@{/}">
+                    <i class="bi bi-arrow-left"></i> Volver a Tienda
+                </a>
+            </div>
         </aside>
 
+        <!-- Contenido Principal -->
         <main class="content">
-            <h1 class="display-5">Bienvenido al Dashboard</h1>
-            <p class="lead text-muted">Desde aquí podrás gestionar los pedidos y el inventario de la tienda.</p>
+            <!-- Header Executive -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="display-6">Dashboard Ejecutivo</h1>
+                            <p class="lead mb-0">
+                                <i class="bi bi-calendar-event me-2"></i>
+                                <span th:text="${#temporals.format(#temporals.createNow(), 'EEEE, dd MMMM yyyy', new java.util.Locale('es', 'ES'))}">Viernes, 31 Octubre 2025</span>
+                            </p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary btn-lg" onclick="location.href='/admin/reportes'">
+                                <i class="bi bi-lightning-fill me-2"></i>Analytics
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Metrics - PERFECTAMENTE ALINEADAS -->
+            <div class="row mb-5 g-3">
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="metric-card gradient-card-1">
+                        <div class="metric-icon"><i class="bi bi-book"></i></div>
+                        <h3 class="metric-value" th:text="${totalLibros}">0</h3>
+                        <p class="mb-1">Total Libros</p>
+                        <small>En catálogo</small>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="metric-card gradient-card-2">
+                        <div class="metric-icon"><i class="bi bi-cart-check"></i></div>
+                        <h3 class="metric-value" th:text="${ventasHoy}">0</h3>
+                        <p class="mb-1">Ventas Día</p>
+                        <small>Estimadas</small>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="metric-card gradient-card-3">
+                        <div class="metric-icon"><i class="bi bi-people"></i></div>
+                        <h3 class="metric-value" th:text="${totalUsuarios}">0</h3>
+                        <p class="mb-1">Clientes</p>
+                        <small>Registrados</small>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="metric-card gradient-card-4">
+                        <div class="metric-icon"><i class="bi bi-currency-dollar"></i></div>
+                        <h3 class="metric-value">S/<span th:text="${ingresosDia}">0</span></h3>
+                        <p class="mb-1">Revenue</p>
+                        <small>Estimado</small>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="metric-card gradient-card-5">
+                        <div class="metric-icon"><i class="bi bi-shop"></i></div>
+                        <h3 class="metric-value" th:text="${totalSucursales}">0</h3>
+                        <p class="mb-1">Sucursales</p>
+                        <small>Activas</small>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-4 col-md-6">
+                    <div class="metric-card gradient-card-6">
+                        <div class="metric-icon"><i class="bi bi-hourglass-split"></i></div>
+                        <h3 class="metric-value" th:text="${pedidosPendientes}">0</h3>
+                        <p class="mb-1">Pendientes</p>
+                        <small>Para revisar</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section - PERFECTAMENTE ESTRUCTURADA -->
+            <div class="row mb-4 g-4">
+                <!-- Chart de Performance -->
+                <div class="col-lg-8">
+                    <div class="chart-container">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-graph-up text-primary me-2 fs-5"></i>
+                            <h5 class="mb-0">Performance de Ventas</h5>
+                        </div>
+                        
+                        <div class="chart-section">
+                            <!-- Stats Cards Row -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-4">
+                                    <div class="stats-card">
+                                        <div style="color: #6366f1; border-left: 3px solid #6366f1; padding-left: 8px">
+                                            <div style="font-size: 1.5rem; font-weight: 700" th:text="${ventasHoy}">4</div>
+                                            <small>Ventas Hoy</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stats-card">
+                                        <div style="color: #ec4899; border-left: 3px solid #ec4899; padding-left: 8px">
+                                            <div style="font-size: 1.5rem; font-weight: 700" th:text="${totalLibros}">56</div>
+                                            <small>Inventario</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stats-card">
+                                        <div style="color: #10b981; border-left: 3px solid #10b981; padding-left: 8px">
+                                            <div style="font-size: 1.5rem; font-weight: 700">+7%</div>
+                                            <small>Crecimiento</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Indicators -->
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="fw-medium">Inventario Disponible</small>
+                                            <small class="fw-bold">85%</small>
+                                        </div>
+                                        <div class="progress-container">
+                                            <div class="progress-bar-custom" style="background: linear-gradient(90deg, #6366f1, #ec4899); width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="fw-medium">Base de Clientes</small>
+                                            <small class="fw-bold">72%</small>
+                                        </div>
+                                        <div class="progress-container">
+                                            <div class="progress-bar-custom" style="background: linear-gradient(90deg, #10b981, #06b6d4); width: 72%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="fw-medium">Performance Sistema</small>
+                                            <small class="fw-bold">92%</small>
+                                        </div>
+                                        <div class="progress-container">
+                                            <div class="progress-bar-custom" style="background: linear-gradient(90deg, #f59e0b, #eab308); width: 92%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Bottom Status -->
+                            <div style="position: absolute; bottom: 16px; left: 24px; right: 24px">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="opacity-75">
+                                        <i class="bi bi-trending-up me-1"></i>
+                                        Tendencia: Sistema operativo
+                                    </small>
+                                    <small class="opacity-75">
+                                        Update: <span th:text="${#temporals.format(#temporals.createNow(), 'HH:mm')}">01:32</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top Books -->
+                <div class="col-lg-4">
+                    <div class="chart-container">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-trophy text-warning me-2 fs-5"></i>
+                            <h5 class="mb-0">Top Performers</h5>
+                        </div>
+                        
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center" 
+                                 th:each="libro, iterStat : ${topVendidos}" th:if="${iterStat.count <= 5}">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1" th:text="${libro.nombre}">Libro</h6>
+                                    <small class="opacity-75">Rank #<span th:text="${iterStat.count}">1</span></small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill" th:text="${libro.totalVendido}">0</span>
+                            </div>
+                            
+                            <div th:if="${#lists.isEmpty(topVendidos)}" class="text-center py-4">
+                                <i class="bi bi-books display-6 opacity-50"></i>
+                                <p class="mt-3 mb-0 opacity-75">Procesando datos de ventas...</p>
+                                <small class="opacity-50">Sistema analizando rendimiento</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operations Section -->
+            <div class="row g-4">
+                <!-- Activity Feed -->
+                <div class="col-lg-8">
+                    <div class="chart-container">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-activity text-info me-2 fs-5"></i>
+                            <h5 class="mb-0">Sistema en Tiempo Real</h5>
+                        </div>
+                        
+                        <div class="activity-feed">
+                            <div class="activity-item" th:each="actividad : ${actividadReciente}">
+                                <i class="bi me-3" 
+                                   th:class="'bi-' + ${actividad.icono} + ' text-' + ${actividad.color}"></i>
+                                <div class="flex-grow-1">
+                                    <strong th:text="${actividad.titulo}">Actividad</strong>
+                                    <p class="mb-1 opacity-75" th:text="${actividad.descripcion}">Descripción</p>
+                                    <small class="opacity-50" th:text="${actividad.tiempo}">Tiempo</small>
+                                </div>
+                            </div>
+                            
+                            <div th:if="${#lists.isEmpty(actividadReciente)}" class="text-center py-4">
+                                <i class="bi bi-gear display-6 opacity-50"></i>
+                                <p class="mt-3 mb-1 opacity-75">Sistema operativo</p>
+                                <small class="opacity-50">
+                                    Monitoreando <span th:text="${totalLibros}">0</span> libros y 
+                                    <span th:text="${totalUsuarios}">0</span> usuarios
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions & Intelligence -->
+                <div class="col-lg-4">
+                    <div class="chart-container">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-lightning text-primary me-2 fs-5"></i>
+                            <h5 class="mb-0">Control Rápido</h5>
+                        </div>
+                        
+                        <div class="d-grid gap-3 mb-4">
+                            <button class="quick-action-btn" onclick="location.href='/admin/libros'">
+                                <i class="bi bi-plus-circle me-2"></i>Gestionar Inventario
+                            </button>
+                            <button class="quick-action-btn" onclick="location.href='/admin/pedidos'">
+                                <i class="bi bi-eye me-2"></i>Revisar Pedidos
+                            </button>
+                            <button class="quick-action-btn" onclick="location.href='/admin/reportes'">
+                                <i class="bi bi-file-earmark-text me-2"></i>Generar Reportes
+                            </button>
+                            <button class="quick-action-btn" onclick="location.href='/admin/usuarios'">
+                                <i class="bi bi-people me-2"></i>Admin Usuarios
+                            </button>
+                        </div>
+                        
+                        <!-- Intelligence Panel -->
+                        <div class="intelligence-panel">
+                            <div class="alert alert-info">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                <strong>Business Intelligence</strong>
+                                <p class="mb-0 mt-2" th:text="${tipDelDia}">Sistema analizando datos...</p>
+                            </div>
+                            
+                            <div th:if="${alertasStock > 0}" class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>Monitor de Stock</strong>
+                                <p class="mb-0 mt-2">
+                                    <span th:text="${alertasStock}">0</span> productos requieren seguimiento.
+                                </p>
+                            </div>
+                            
+                            <div th:if="${pedidosPendientes > 0}" class="alert alert-success">
+                                <i class="bi bi-check-circle me-2"></i>
+                                <strong>Estado de Pedidos</strong>
+                                <p class="mb-0 mt-2">
+                                    <span th:text="${pedidosPendientes}">0</span> pedidos procesándose.
+                                </p>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-graph-up me-2"></i>
+                                <strong>Resumen Sistema</strong>
+                                <p class="mb-0 mt-2">
+                                    <span th:text="${totalLibros}">0</span> libros • 
+                                    <span th:text="${totalUsuarios}">0</span> usuarios • 
+                                    <span th:text="${totalSucursales}">0</span> sucursales
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard ejecutivo iniciando...');
+            
+            // Animaciones para las métricas
+            document.querySelectorAll('.metric-value').forEach((el, i) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    el.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, i * 100);
+            });
+            
+            // Animación para las barras de progreso
+            setTimeout(() => {
+                document.querySelectorAll('.progress-bar-custom').forEach((bar, i) => {
+                    const currentWidth = bar.style.width;
+                    bar.style.width = '0%';
+                    
+                    setTimeout(() => {
+                        bar.style.width = currentWidth;
+                    }, i * 200);
+                });
+            }, 800);
+            
+            console.log('Dashboard completamente funcional');
+        });
+    </script>
 </body>
 </html>

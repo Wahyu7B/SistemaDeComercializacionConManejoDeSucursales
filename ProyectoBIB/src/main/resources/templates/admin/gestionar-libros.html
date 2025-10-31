@@ -2,97 +2,646 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Gestionar Libros</title>
+    <title>Gestionar Libros - Libros como Alas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        /* Estilos adicionales para inventario */
+        .table-modern {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        .table-modern thead th {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+        }
+        .table-modern tbody td {
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .table-modern tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .book-cover {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .book-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .stock-input {
+            max-width: 80px;
+        }
+        .category-badge {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .price-display {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+        .stock-warning {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        .stock-danger {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .stock-good {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .empty-state {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
 </head>
 <body>
     <div class="admin-wrapper">
-        <aside class="sidebar p-3">
-            <h4 class="text-light mb-4 border-bottom pb-3">Admin Panel</h4>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/pedidos}">Gestionar Pedidos</a></li>
-                <li class="nav-item"><a class="nav-link active" th:href="@{/admin/libros}">Gestionar Libros</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/usuarios}">Gestionar Usuarios</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/admin/reportes}">Ver Reportes</a></li>
-            </ul>
-            <hr class="text-secondary"><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" th:href="@{/}">← Volver a la Tienda</a></li></ul>
-        </aside>
-
-        <main class="content">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 class="display-5">Gestionar Inventario</h1>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarLibro">+ Agregar Nuevo Libro</button>
+        <!-- Sidebar Premium - IGUAL QUE DASHBOARD -->
+        <aside class="sidebar">
+            <div class="brand">
+                <h4><i class="bi bi-book-half me-2"></i>Libros como Alas</h4>
+                <small>Panel de Administración</small>
             </div>
             
-            <div th:if="${successMessage}" class="alert alert-success mt-3" th:text="${successMessage}"></div>
-            <div th:if="${errorMessage}" class="alert alert-danger mt-3" th:text="${errorMessage}"></div>
+            <nav>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/dashboard}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/pedidos}">
+                            <i class="bi bi-cart3"></i> Pedidos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/admin/libros}">
+                            <i class="bi bi-book"></i> Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/usuarios}">
+                            <i class="bi bi-people"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/reportes}">
+                            <i class="bi bi-graph-up-arrow"></i> Analytics
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="user-info mt-auto">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff&size=64" alt="Admin">
+                <p class="mb-1">Administrador</p>
+                <small>Gestión de inventario</small>
+            </div>
+            
+            <div class="mt-3">
+                <a class="nav-link" th:href="@{/}">
+                    <i class="bi bi-arrow-left"></i> Volver a Tienda
+                </a>
+            </div>
+        </aside>
 
-            <div class="card shadow-sm mt-4">
-                <div class="card-body">
-                    <table class="table table-hover align-middle">
-                        <thead>
-                            <tr>
-                                <th>Libro</th><th>Sucursal</th><th>Stock Actual</th><th style="width: 250px;">Actualizar Stock</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="item : ${inventario}">
-                                <td th:text="${item.libro.titulo}"></td><td th:text="${item.sucursal.nombre}"></td><td class="fw-bold" th:text="${item.stockVenta}"></td>
-                                <td>
-                                    <form th:action="@{/admin/libros/actualizar-stock}" method="post" class="d-flex">
-                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /><input type="hidden" name="inventarioId" th:value="${item.id}" />
-                                        <input type="number" name="nuevoStock" class="form-control form-control-sm me-2" th:value="${item.stockVenta}" min="0" />
-                                        <button type="submit" class="btn btn-sm btn-outline-primary">Guardar</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <!-- Contenido Principal -->
+        <main class="content">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="display-6">Gestión de Inventario</h1>
+                            <p class="lead mb-0">
+                                <i class="bi bi-boxes me-2"></i>
+                                Administra tu catálogo de libros y controla el stock
+                            </p>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarLibro">
+                                <i class="bi bi-plus-circle me-2"></i>Nuevo Libro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i>
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Estadísticas rápidas de inventario -->
+            <div class="row mb-4 g-3">
+                <div class="col-lg-3 col-md-6">
+                    <div class="metric-card gradient-card-1">
+                        <div class="metric-icon"><i class="bi bi-book"></i></div>
+                        <h3 class="metric-value" th:text="${inventario.size()}">0</h3>
+                        <p class="mb-1">Libros en Stock</p>
+                        <small>Total de ítems</small>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="metric-card gradient-card-2">
+                        <div class="metric-icon"><i class="bi bi-boxes"></i></div>
+                        <h3 class="metric-value" id="total-stock">0</h3>
+                        <p class="mb-1">Stock Total</p>
+                        <small>Unidades disponibles</small>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="metric-card gradient-card-3">
+                        <div class="metric-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                        <h3 class="metric-value" id="stock-bajo">0</h3>
+                        <p class="mb-1">Stock Bajo</p>
+                        <small>Requieren atención</small>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="metric-card gradient-card-4">
+                        <div class="metric-icon"><i class="bi bi-currency-dollar"></i></div>
+                        <h3 class="metric-value" id="valor-inventario">S/0</h3>
+                        <p class="mb-1">Valor Inventario</p>
+                        <small>Estimado</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de inventario -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="chart-container">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-table text-primary me-2 fs-5"></i>
+                                <h5 class="mb-0">Inventario de Libros</h5>
+                            </div>
+                            <span class="badge bg-info text-white">
+                                <i class="bi bi-boxes me-1"></i>
+                                <span th:text="${inventario.size()}">0</span> productos
+                            </span>
+                        </div>
+
+                        <!-- Estado vacío -->
+                        <div th:if="${inventario.isEmpty()}" class="empty-state">
+                            <i class="bi bi-book display-1 opacity-50 mb-3"></i>
+                            <h4 class="mb-3">No hay libros en el inventario</h4>
+                            <p class="opacity-75 mb-4">
+                                Comienza agregando tu primer libro al catálogo.
+                            </p>
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAgregarLibro">
+                                <i class="bi bi-plus-circle me-2"></i>Agregar Primer Libro
+                            </button>
+                        </div>
+
+                        <!-- Tabla con inventario -->
+                        <div th:if="${not inventario.isEmpty()}">
+                            <div class="table-responsive">
+                                <table class="table table-modern mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="bi bi-book me-1"></i>Libro</th>
+                                            <th><i class="bi bi-building me-1"></i>Sucursal</th>
+                                            <th><i class="bi bi-tags me-1"></i>Categoría</th>
+                                            <th><i class="bi bi-currency-dollar me-1"></i>Precio</th>
+                                            <th><i class="bi bi-boxes me-1"></i>Stock</th>
+                                            <th class="text-center"><i class="bi bi-gear me-1"></i>Actualizar Stock</th>
+                                            <th class="text-center"><i class="bi bi-tools me-1"></i>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="item : ${inventario}">
+                                            <!-- Información del libro con portada - COLORES CORREGIDOS -->
+                                            <td>
+                                                <div class="book-info">
+                                                    <img th:src="${item.libro.portadaUrl}" 
+                                                        th:alt="${item.libro.titulo}" 
+                                                        class="book-cover"
+                                                        onerror="this.src='https://via.placeholder.com/60x80/6366f1/ffffff?text=No+Cover'">
+                                                    <div>
+                                                        <strong style="color: #e2e8f0; font-size: 0.95rem;" th:text="${item.libro.titulo}">Título</strong>
+                                                        <br><small style="color: #94a3b8; font-weight: 500;" th:text="${item.libro.autor}">Autor</small>
+                                                        <br><small style="color: #64748b; font-size: 0.75rem;" th:text="'ISBN: ' + ${item.libro.isbn}">ISBN</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Sucursal -->
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="bi bi-geo-alt text-info me-2"></i>
+                                                    <strong style="color: #e2e8f0;" th:text="${item.sucursal.nombre}">Sucursal</strong>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- Categoría -->
+                                            <td>
+                                                <span class="category-badge" th:text="${item.libro.categoria.nombre}">Categoría</span>
+                                            </td>
+                                            
+                                            <!-- Precio -->
+                                            <td>
+                                                <span class="price-display">S/<span th:text="${#numbers.formatDecimal(item.libro.precioVenta, 1, 2)}">0.00</span></span>
+                                            </td>
+                                            
+                                            <!-- Stock con colores -->
+                                            <td>
+                                                <span th:class="${item.stockVenta <= 5 ? 'stock-danger' : item.stockVenta <= 15 ? 'stock-warning' : 'stock-good'}"
+                                                    th:text="${item.stockVenta}">0</span>
+                                                <small class="d-block" style="color: #94a3b8;">
+                                                    <span th:if="${item.stockVenta <= 5}" class="text-danger">Stock crítico</span>
+                                                    <span th:if="${item.stockVenta > 5 && item.stockVenta <= 15}" class="text-warning">Stock bajo</span>
+                                                    <span th:if="${item.stockVenta > 15}" class="text-success">Stock normal</span>
+                                                </small>
+                                            </td>
+                                            
+                                            <!-- Actualizar stock -->
+                                            <td>
+                                                <form th:action="@{/admin/libros/actualizar-stock}" method="post" class="d-flex gap-1">
+                                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                                    <input type="hidden" name="inventarioId" th:value="${item.id}" />
+                                                    <input type="number" name="nuevoStock" class="form-control form-control-sm stock-input" 
+                                                        th:value="${item.stockVenta}" min="0" max="9999" 
+                                                        style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-success btn-action"
+                                                            onclick="return confirm('¿Actualizar stock?')">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                            
+                                            <!-- Acciones -->
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-outline-info btn-action" 
+                                                            onclick="verDetallesLibro(this)"
+                                                            th:data-id="${item.libro.id}"
+                                                            th:data-titulo="${item.libro.titulo}"
+                                                            th:data-autor="${item.libro.autor}"
+                                                            th:data-isbn="${item.libro.isbn}"
+                                                            th:data-editorial="${item.libro.editorial}"
+                                                            th:data-anio="${item.libro.anio}"
+                                                            th:data-precio="${#numbers.formatDecimal(item.libro.precioVenta, 1, 2)}"
+                                                            th:data-categoria="${item.libro.categoria.nombre}"
+                                                            th:data-descripcion="${item.libro.descripcion}">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning btn-action">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger btn-action" 
+                                                            onclick="return confirm('¿Estás seguro de eliminar este libro?')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Info -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="text-center opacity-75">
+                        <small>
+                            <i class="bi bi-database me-1"></i>
+                            Sistema de inventario • 
+                            Última actualización: <span th:text="${#temporals.format(#temporals.createNow(), 'HH:mm')}">02:04</span> • 
+                            <span th:text="${inventario.size()}">0</span> libros registrados
+                        </small>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Modal Agregar Libro - MEJORADO -->
     <div class="modal fade" id="modalAgregarLibro" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(99, 102, 241, 0.3);">
                 <form th:action="@{/admin/libros/guardar}" th:object="${libroNuevo}" method="post">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <div class="modal-header"><h5 class="modal-title">Agregar Nuevo Libro</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">Título</label><input type="text" class="form-control" th:field="*{titulo}" required></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Autor</label><input type="text" class="form-control" th:field="*{autor}"></div>
-                        </div>
-                        <div class="row">
-                             <div class="col-md-6 mb-3"><label class="form-label">ISBN</label><input type="text" class="form-control" th:field="*{isbn}"></div>
-                             <div class="col-md-6 mb-3"><label class="form-label">Editorial</label><input type="text" class="form-control" th:field="*{editorial}"></div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">Año</label><input type="number" class="form-control" th:field="*{anio}"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Precio</label><input type="number" step="0.01" class="form-control" th:field="*{precioVenta}" required></div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Categoría</label>
-                            <select class="form-select" th:field="*{categoria.id}" required>
-                                <option value="">Selecciona una categoría</option>
-                                <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"></option>
-                            </select>
-                        </div>
-                        <div class="mb-3"><label class="form-label">URL Portada</label><input type="text" class="form-control" th:field="*{portadaUrl}"></div>
-                        <div class="mb-3"><label class="form-label">Descripción</label><textarea class="form-control" th:field="*{descripcion}" rows="3"></textarea></div>
+                    <div class="modal-header" style="border-bottom: 1px solid rgba(99, 102, 241, 0.2); background: rgba(99, 102, 241, 0.1);">
+                        <h5 class="modal-title text-white">
+                            <i class="bi bi-plus-circle me-2 text-success"></i>
+                            Agregar Nuevo Libro al Catálogo
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Libro</button>
+                    <div class="modal-body text-white" style="padding: 2rem;">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-book me-1 text-primary"></i>Título *
+                                </label>
+                                <input type="text" class="form-control form-control-lg" th:field="*{titulo}" required
+                                       placeholder="Ingrese el título del libro">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-person me-1 text-info"></i>Autor
+                                </label>
+                                <input type="text" class="form-control form-control-lg" th:field="*{autor}"
+                                       placeholder="Nombre del autor">
+                            </div>
+                        </div>
+                        
+                        <div class="row g-4 mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-upc me-1 text-warning"></i>ISBN
+                                </label>
+                                <input type="text" class="form-control form-control-lg" th:field="*{isbn}"
+                                       placeholder="978-3-16-148410-0">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-building me-1 text-secondary"></i>Editorial
+                                </label>
+                                <input type="text" class="form-control form-control-lg" th:field="*{editorial}"
+                                       placeholder="Nombre de la editorial">
+                            </div>
+                        </div>
+                        
+                        <div class="row g-4 mt-2">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-calendar me-1 text-info"></i>Año de Publicación
+                                </label>
+                                <input type="number" class="form-control form-control-lg" th:field="*{anio}"
+                                       min="1900" max="2025" placeholder="2024">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-currency-dollar me-1 text-success"></i>Precio de Venta *
+                                </label>
+                                <input type="number" step="0.01" class="form-control form-control-lg" th:field="*{precioVenta}" required
+                                       placeholder="0.00" min="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-tags me-1 text-primary"></i>Categoría *
+                                </label>
+                                <select class="form-select form-select-lg" th:field="*{categoria.id}" required>
+                                    <option value="">Selecciona una categoría</option>
+                                    <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-4 mt-2">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-image me-1 text-warning"></i>URL de Portada
+                                </label>
+                                <input type="url" class="form-control form-control-lg" th:field="*{portadaUrl}"
+                                       placeholder="https://ejemplo.com/portada.jpg">
+                                <small class="form-text text-muted">URL de la imagen de portada del libro</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-4 mt-2">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-journal-text me-1 text-info"></i>Descripción
+                                </label>
+                                <textarea class="form-control" th:field="*{descripcion}" rows="4"
+                                          placeholder="Describe el contenido y temática del libro..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid rgba(99, 102, 241, 0.2); background: rgba(99, 102, 241, 0.05);">
+                        <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle me-1"></i>Guardar Libro
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <!-- Modal Ver Detalles del Libro -->
+    <div class="modal fade" id="modalDetallesLibro" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%); backdrop-filter: blur(20px); border: 1px solid rgba(99, 102, 241, 0.3);">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(99, 102, 241, 0.2); background: rgba(99, 102, 241, 0.1);">
+                    <h5 class="modal-title text-white">
+                        <i class="bi bi-book me-2 text-info"></i>
+                        <span id="detalle-titulo">Detalles del Libro</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-white" style="padding: 2rem;">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #6366f1;">
+                                <h6 style="color: #6366f1; margin-bottom: 1rem;">
+                                    <i class="bi bi-info-circle me-2"></i>Información General
+                                </h6>
+                                <div class="mb-2">
+                                    <strong>Autor:</strong>
+                                    <p class="mb-1 ms-3" id="detalle-autor">-</p>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>ISBN:</strong>
+                                    <p class="mb-1 ms-3" id="detalle-isbn">-</p>
+                                </div>
+                                <div class="mb-0">
+                                    <strong>Editorial:</strong>
+                                    <p class="mb-0 ms-3" id="detalle-editorial">-</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div style="background: rgba(16, 185, 129, 0.1); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #10b981;">
+                                <h6 style="color: #10b981; margin-bottom: 1rem;">
+                                    <i class="bi bi-tags me-2"></i>Información Comercial
+                                </h6>
+                                <div class="mb-2">
+                                    <strong>Categoría:</strong>
+                                    <p class="mb-1 ms-3" id="detalle-categoria">-</p>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Año:</strong>
+                                    <p class="mb-1 ms-3" id="detalle-anio">-</p>
+                                </div>
+                                <div class="mb-0">
+                                    <strong>Precio:</strong>
+                                    <p class="mb-0 ms-3" style="font-size: 1.2rem; font-weight: bold; color: #10b981;" id="detalle-precio">S/0.00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div style="background: rgba(147, 197, 253, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(147, 197, 253, 0.2);">
+                                <h6 style="color: #3b82f6; margin-bottom: 0.5rem;">
+                                    <i class="bi bi-journal-text me-2"></i>Descripción:
+                                </h6>
+                                <p class="mb-0" id="detalle-descripcion">Sin descripción disponible</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(99, 102, 241, 0.2); background: rgba(99, 102, 241, 0.05);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Gestión de inventario cargada');
+            
+            // CALCULAR MÉTRICAS DINÁMICAMENTE
+            let totalStock = 0;
+            let stockBajo = 0;
+            let valorInventario = 0;
+            
+            const filasInventario = document.querySelectorAll('tbody tr');
+            filasInventario.forEach(fila => {
+                // Obtener stock
+                const stockCell = fila.querySelector('td:nth-child(5) span');
+                if (stockCell) {
+                    const stock = parseInt(stockCell.textContent) || 0;
+                    totalStock += stock;
+                    
+                    if (stock <= 15) {
+                        stockBajo++;
+                    }
+                }
+                
+                // Obtener precio para calcular valor
+                const precioCell = fila.querySelector('td:nth-child(4) span span');
+                if (precioCell && stockCell) {
+                    const precio = parseFloat(precioCell.textContent.replace(',', '.')) || 0;
+                    const stock = parseInt(stockCell.textContent) || 0;
+                    valorInventario += (precio * stock);
+                }
+            });
+            
+            // Actualizar métricas
+            document.getElementById('total-stock').textContent = totalStock;
+            document.getElementById('stock-bajo').textContent = stockBajo;
+            document.getElementById('valor-inventario').textContent = 'S/' + valorInventario.toFixed(0);
+            
+            console.log('Métricas calculadas:', {totalStock, stockBajo, valorInventario});
+            
+            // Animaciones para las métricas
+            document.querySelectorAll('.metric-value').forEach((el, i) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    el.style.transition = 'all 0.6s ease';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, i * 100);
+            });
+            
+            // Animación para las filas de la tabla
+            document.querySelectorAll('tbody tr').forEach((row, i) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    row.style.transition = 'all 0.4s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, 500 + (i * 50));
+            });
+            
+            console.log('Página completamente funcional');
+        });
+
+        // Función para ver detalles del libro
+        function verDetallesLibro(btn) {
+            const titulo = btn.getAttribute('data-titulo');
+            const autor = btn.getAttribute('data-autor');
+            const isbn = btn.getAttribute('data-isbn');
+            const editorial = btn.getAttribute('data-editorial');
+            const anio = btn.getAttribute('data-anio');
+            const precio = btn.getAttribute('data-precio');
+            const categoria = btn.getAttribute('data-categoria');
+            const descripcion = btn.getAttribute('data-descripcion');
+            
+            // Llenar los datos del modal
+            document.getElementById('detalle-titulo').textContent = titulo;
+            document.getElementById('detalle-autor').textContent = autor || 'No especificado';
+            document.getElementById('detalle-isbn').textContent = isbn || 'No disponible';
+            document.getElementById('detalle-editorial').textContent = editorial || 'No especificada';
+            document.getElementById('detalle-categoria').textContent = categoria || 'Sin categoría';
+            document.getElementById('detalle-anio').textContent = anio || 'No especificado';
+            document.getElementById('detalle-precio').textContent = 'S/' + precio;
+            document.getElementById('detalle-descripcion').textContent = descripcion || 'Sin descripción disponible';
+            
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById('modalDetallesLibro'));
+            modal.show();
+        }
+    </script>
 </body>
 </html>
