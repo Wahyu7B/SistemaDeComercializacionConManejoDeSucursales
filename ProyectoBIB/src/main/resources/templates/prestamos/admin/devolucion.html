@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procesar Devolución - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 900px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .info-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+        }
+        .libro-item {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 0;
+        }
+        .libro-item:last-child {
+            border-bottom: none;
+        }
+        .badge-activo { background-color: #28a745; }
+        .badge-vencido { background-color: #dc3545; }
+        .alert-multa {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-check-circle text-success"></i> Procesar Devolución
+                </h2>
+                <a th:href="@{/prestamos/admin/listar}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Alertas -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Información del Préstamo -->
+            <div class="info-card">
+                <h5 class="mb-3">
+                    <span class="badge" 
+                          th:classappend="${prestamo.estado.name() == 'ACTIVO'} ? 'badge-activo' : 'badge-vencido'">
+                        <span th:text="${prestamo.estado}"></span>
+                    </span>
+                    Préstamo #<span th:text="${prestamo.id}"></span>
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <i class="fas fa-user text-primary"></i>
+                            <strong>Usuario:</strong> 
+                            <span th:text="${prestamo.usuario.nombreCompleto}"></span>
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-envelope text-primary"></i>
+                            <strong>Email:</strong> 
+                            <span th:text="${prestamo.usuario.email}"></span>
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-store text-primary"></i>
+                            <strong>Sucursal:</strong> 
+                            <span th:text="${prestamo.sucursal.nombre}"></span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <i class="fas fa-calendar-alt text-success"></i>
+                            <strong>Fecha de préstamo:</strong><br>
+                            <span th:text="${#temporals.format(prestamo.fechaPrestamo, 'dd/MM/yyyy HH:mm')}"></span>
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-calendar-check text-warning"></i>
+                            <strong>Fecha límite:</strong><br>
+                            <span th:text="${#temporals.format(prestamo.fechaDevolucionEsperada, 'dd/MM/yyyy')}"></span>
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-clock text-info"></i>
+                            <strong>Días de préstamo:</strong> 
+                            <span th:text="${prestamo.diasPrestamo + ' días'}"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cálculo de Multa (si aplica) -->
+            <div th:if="${prestamo.estado.name() == 'VENCIDO'}" class="alert alert-multa">
+                <h5><i class="fas fa-exclamation-triangle"></i> Préstamo Vencido</h5>
+                <p class="mb-2">
+                    Este préstamo está vencido. La multa será calculada automáticamente al procesar la devolución.
+                </p>
+                <p class="mb-0">
+                    <strong>Multa estimada:</strong> Se calculará según los días de retraso × tarifa por día
+                </p>
+            </div>
+
+            <!-- Libros a Devolver -->
+            <div class="info-card">
+                <h5 class="mb-3">
+                    <i class="fas fa-books text-primary"></i> Libros a Devolver
+                </h5>
+
+                <div th:each="detalle : ${detalles}" class="libro-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center">
+                            <img th:src="${detalle.libro.portadaUrl}" 
+                                 th:alt="${detalle.libro.titulo}"
+                                 class="img-fluid rounded"
+                                 style="max-height: 80px; object-fit: cover;"
+                                 onerror="this.src='https://via.placeholder.com/80x120?text=Sin+Imagen'">
+                        </div>
+                        <div class="col-md-8">
+                            <h6 class="mb-1" th:text="${detalle.libro.titulo}"></h6>
+                            <p class="mb-0 text-muted small">
+                                <i class="fas fa-user-edit"></i> 
+                                <span th:text="${detalle.libro.autor}"></span> | 
+                                <i class="fas fa-barcode"></i> 
+                                ISBN: <span th:text="${detalle.libro.isbn}"></span>
+                            </p>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <span class="badge bg-primary" th:text="${detalle.cantidad + ' unidad(es)'}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Devolución -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-clipboard-check text-success"></i> Confirmar Devolución
+                    </h5>
+
+                    <form th:action="@{/prestamos/admin/devolucion}" th:object="${devolucionDTO}" method="post">
+                        <input type="hidden" th:field="*{prestamoId}">
+
+                        <!-- Observaciones -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-comment text-primary"></i> Observaciones sobre la devolución
+                            </label>
+                            <textarea class="form-control" th:field="*{observaciones}" 
+                                      rows="4" 
+                                      placeholder="Ingrese observaciones sobre el estado de los libros devueltos, pagos de multa, etc. (opcional)"></textarea>
+                            <div class="form-text">
+                                Ejemplo: "Todos los libros en buen estado", "Cliente pagó multa en efectivo", etc.
+                            </div>
+                        </div>
+
+                        <!-- Confirmación de Multa -->
+                        <div th:if="${prestamo.estado.name() == 'VENCIDO'}" class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirmarMulta" required>
+                                <label class="form-check-label" for="confirmarMulta">
+                                    Confirmo que el cliente ha sido informado sobre la multa por retraso
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a th:href="@{/prestamos/admin/listar}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check-circle"></i> Confirmar Devolución
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="alert alert-info mt-3">
+                <i class="fas fa-info-circle"></i>
+                <strong>Importante:</strong> Al confirmar la devolución:
+                <ul class="mb-0 mt-2">
+                    <li>Los libros serán devueltos al inventario de préstamos</li>
+                    <li>Se calculará automáticamente la multa por retraso (si aplica)</li>
+                    <li>El préstamo quedará marcado como DEVUELTO</li>
+                    <li>Esta acción no se puede deshacer</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

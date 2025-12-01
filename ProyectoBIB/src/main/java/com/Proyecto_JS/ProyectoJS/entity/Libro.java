@@ -1,6 +1,7 @@
 package com.Proyecto_JS.ProyectoJS.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -15,6 +16,8 @@ public class Libro {
     @Column(unique = true, length = 20)
     private String isbn;
 
+    @NotBlank(message = "El título es obligatorio")
+    @Size(min = 1, max = 255, message = "El título debe tener entre 1 y 255 caracteres")
     @Column(nullable = false, length = 255)
     private String titulo;
 
@@ -24,6 +27,8 @@ public class Libro {
     @Column(length = 255)
     private String editorial;
 
+    @Min(value = 1900, message = "El año debe ser mayor a 1900")
+    @Max(value = 2100, message = "El año no puede ser futuro")
     private Integer anio;
 
     @Lob
@@ -32,6 +37,8 @@ public class Libro {
     @Column(name = "portada_url", length = 500)
     private String portadaUrl;
 
+    @NotNull(message = "El precio es obligatorio")
+    @DecimalMin(value = "0.01", message = "El precio debe ser mayor a 0")
     @Column(name = "precio_venta", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioVenta;
 
@@ -42,7 +49,6 @@ public class Libro {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id") 
     private Categoria categoria; 
-
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -157,5 +163,4 @@ public class Libro {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
 }

@@ -5,10 +5,11 @@ import com.Proyecto_JS.ProyectoJS.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import jakarta.validation.Valid;
 
 @Controller
 public class AuthController {
@@ -23,7 +24,15 @@ public class AuthController {
     }
 
     @PostMapping("/registro")
-    public String registrarCuentaDeUsuario(@ModelAttribute("usuario") UsuarioRegistroDTO registroDTO) {
+    public String registrarCuentaDeUsuario(
+            @Valid @ModelAttribute("usuario") UsuarioRegistroDTO registroDTO,
+            BindingResult result,
+            Model model) {
+        
+        if (result.hasErrors()) {
+            return "auth/registro";
+        }
+        
         usuarioService.guardar(registroDTO);
         return "redirect:/registro?exito";
     }

@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "usuarios")
@@ -19,12 +20,17 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "El nombre completo es obligatorio")
+    @Size(min = 3, max = 120, message = "El nombre debe tener entre 3 y 120 caracteres")
     @Column(name = "nombre_completo", nullable = false, length = 120)
     private String nombreCompleto;
 
+    @NotBlank(message = "El email es obligatorio")
+    @Email(message = "Email inválido")
     @Column(nullable = false, unique = true, length = 120)
     private String email;
 
+    @Pattern(regexp = "^\\+?[0-9]{9,15}$", message = "Teléfono inválido")
     @Column(length = 30)
     private String telefono;
 
@@ -146,5 +152,4 @@ public class Usuario {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
 }

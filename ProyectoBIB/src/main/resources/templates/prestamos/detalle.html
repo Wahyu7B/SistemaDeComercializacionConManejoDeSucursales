@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Préstamo - Libros Como Alas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        .container-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .info-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+        }
+        .badge-activo { background-color: #28a745; }
+        .badge-vencido { background-color: #dc3545; }
+        .badge-devuelto { background-color: #6c757d; }
+        .libro-item {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 0;
+        }
+        .libro-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-book-reader text-primary"></i> Libros Como Alas
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/catalogo">Catálogo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/prestamos/mis-prestamos">Mis Préstamos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/perfil">Mi Perfil</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <div class="container">
+        <div class="container-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-file-alt text-primary"></i> 
+                    Préstamo #<span th:text="${prestamo.id}"></span>
+                </h2>
+                <a href="/prestamos/mis-prestamos" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Estado del Préstamo -->
+            <div class="info-card">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>
+                            <span class="badge" 
+                                  th:classappend="${prestamo.estado.name() == 'ACTIVO'} ? 'badge-activo' : 
+                                                  (${prestamo.estado.name() == 'VENCIDO'} ? 'badge-vencido' : 'badge-devuelto')">
+                                <span th:text="${prestamo.estado}"></span>
+                            </span>
+                        </h5>
+                        <hr>
+                        <p class="mb-2">
+                            <i class="fas fa-user text-primary"></i>
+                            <strong>Usuario:</strong> 
+                            <span th:text="${prestamo.usuario.nombreCompleto}"></span>
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-envelope text-primary"></i>
+                            <strong>Email:</strong> 
+                            <span th:text="${prestamo.usuario.email}"></span>
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-store text-primary"></i>
+                            <strong>Sucursal:</strong> 
+                            <span th:text="${prestamo.sucursal.nombre}"></span>
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                            <strong>Dirección:</strong> 
+                            <span th:text="${prestamo.sucursal.direccion}"></span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted mb-3">Fechas del Préstamo</h6>
+                        <p class="mb-2">
+                            <i class="fas fa-calendar-alt text-success"></i>
+                            <strong>Fecha de préstamo:</strong><br>
+                            <span th:text="${#temporals.format(prestamo.fechaPrestamo, 'dd/MM/yyyy HH:mm')}"></span>
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-calendar-check text-warning"></i>
+                            <strong>Fecha límite de devolución:</strong><br>
+                            <span th:text="${#temporals.format(prestamo.fechaDevolucionEsperada, 'dd/MM/yyyy')}"></span>
+                        </p>
+                        <p class="mb-2" th:if="${prestamo.fechaDevolucionReal != null}">
+                            <i class="fas fa-calendar-check text-success"></i>
+                            <strong>Fecha de devolución real:</strong><br>
+                            <span th:text="${#temporals.format(prestamo.fechaDevolucionReal, 'dd/MM/yyyy HH:mm')}"></span>
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-clock text-info"></i>
+                            <strong>Días de préstamo:</strong> 
+                            <span th:text="${prestamo.diasPrestamo + ' días'}"></span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Multa -->
+                <div th:if="${prestamo.multa > 0}" class="alert alert-danger mt-3 mb-0">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Multa por retraso:</strong> 
+                    S/ <span th:text="${#numbers.formatDecimal(prestamo.multa, 1, 2)}"></span>
+                </div>
+
+                <!-- Observaciones -->
+                <div th:if="${prestamo.observaciones != null}" class="mt-3">
+                    <h6 class="text-muted">Observaciones:</h6>
+                    <p class="mb-0 fst-italic" th:text="${prestamo.observaciones}"></p>
+                </div>
+            </div>
+
+            <!-- Libros Prestados -->
+            <div class="info-card">
+                <h5 class="mb-3">
+                    <i class="fas fa-books text-primary"></i> Libros Prestados
+                </h5>
+
+                <div th:each="detalle : ${detalles}" class="libro-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center">
+                            <img th:src="${detalle.libro.portadaUrl}" 
+                                 th:alt="${detalle.libro.titulo}"
+                                 class="img-fluid rounded"
+                                 style="max-height: 120px; object-fit: cover;"
+                                 onerror="this.src='https://via.placeholder.com/100x150?text=Sin+Imagen'">
+                        </div>
+                        <div class="col-md-8">
+                            <h6 class="mb-2" th:text="${detalle.libro.titulo}"></h6>
+                            <p class="mb-1 text-muted">
+                                <i class="fas fa-user-edit"></i> 
+                                <span th:text="${detalle.libro.autor}"></span>
+                            </p>
+                            <p class="mb-1 text-muted">
+                                <i class="fas fa-building"></i> 
+                                <span th:text="${detalle.libro.editorial}"></span>
+                            </p>
+                            <p class="mb-0 text-muted">
+                                <i class="fas fa-barcode"></i> 
+                                ISBN: <span th:text="${detalle.libro.isbn}"></span>
+                            </p>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <span class="badge bg-primary fs-5" th:text="${detalle.cantidad + ' unidad(es)'}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Administrativa -->
+            <div class="info-card">
+                <h6 class="text-muted mb-3">Información del Sistema</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-1 small" th:if="${prestamo.adminPrestamo != null}">
+                            <strong>Registrado por:</strong> 
+                            <span th:text="${prestamo.adminPrestamo.nombreCompleto}"></span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1 small" th:if="${prestamo.adminDevolucion != null}">
+                            <strong>Devolución procesada por:</strong> 
+                            <span th:text="${prestamo.adminDevolucion.nombreCompleto}"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

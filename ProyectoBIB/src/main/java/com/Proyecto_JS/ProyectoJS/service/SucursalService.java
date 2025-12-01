@@ -5,4 +5,7 @@ import java.util.List;
 
 public interface SucursalService {
     List<Sucursal> obtenerTodasLasSucursales();
+    
+    // AGREGAR ESTE MÉTODO
+    List<Sucursal> listarActivas();
 }

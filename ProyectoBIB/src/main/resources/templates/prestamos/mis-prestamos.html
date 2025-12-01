@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Préstamos - Libros Como Alas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        .container-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .prestamo-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .prestamo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        .badge-activo { background-color: #28a745; }
+        .badge-vencido { background-color: #dc3545; }
+        .badge-devuelto { background-color: #6c757d; }
+        .badge-renovado { background-color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-book-reader text-primary"></i> Libros Como Alas
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/catalogo">Catálogo</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/prestamos/mis-prestamos">Mis Préstamos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/perfil">Mi Perfil</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <div class="container">
+        <div class="container-content">
+            <h2 class="mb-4">
+                <i class="fas fa-book-reader text-primary"></i> Mis Préstamos
+            </h2>
+
+            <!-- Alertas -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Tabs de Estado -->
+            <ul class="nav nav-tabs mb-4" id="prestamoTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="activos-tab" data-bs-toggle="tab" data-bs-target="#activos" type="button">
+                        <i class="fas fa-book-open"></i> Activos
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="historial-tab" data-bs-toggle="tab" data-bs-target="#historial" type="button">
+                        <i class="fas fa-history"></i> Historial
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="prestamoTabsContent">
+                <!-- Tab Activos -->
+                <div class="tab-pane fade show active" id="activos" role="tabpanel">
+                    <div th:if="${prestamosActivos.isEmpty()}" class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No tienes préstamos activos en este momento.
+                    </div>
+
+                    <div th:each="prestamo : ${prestamosActivos}" class="prestamo-card">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="mb-2">
+                                    <span class="badge" th:classappend="${prestamo.estado.name() == 'ACTIVO'} ? 'badge-activo' : 'badge-vencido'">
+                                        <span th:text="${prestamo.estado}"></span>
+                                    </span>
+                                    Préstamo #<span th:text="${prestamo.id}"></span>
+                                </h5>
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar-alt text-muted"></i>
+                                    <strong>Fecha de préstamo:</strong> 
+                                    <span th:text="${#temporals.format(prestamo.fechaPrestamo, 'dd/MM/yyyy')}"></span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar-check text-warning"></i>
+                                    <strong>Fecha límite:</strong> 
+                                    <span th:text="${#temporals.format(prestamo.fechaDevolucionEsperada, 'dd/MM/yyyy')}"></span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-store text-muted"></i>
+                                    <strong>Sucursal:</strong> <span th:text="${prestamo.sucursal.nombre}"></span>
+                                </p>
+                                <div th:if="${prestamo.multa > 0}" class="alert alert-danger py-2 mt-2">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Multa acumulada:</strong> S/ <span th:text="${#numbers.formatDecimal(prestamo.multa, 1, 2)}"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a th:href="@{/prestamos/{id}(id=${prestamo.id})}" class="btn btn-primary">
+                                    <i class="fas fa-eye"></i> Ver Detalle
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Libros prestados -->
+                        <hr>
+                        <h6 class="text-muted mb-2"><i class="fas fa-books"></i> Libros prestados:</h6>
+                        <ul class="list-unstyled mb-0">
+                            <li th:each="detalle : ${prestamo.detalles}" class="mb-1">
+                                <i class="fas fa-book text-primary"></i>
+                                <span th:text="${detalle.libro.titulo}"></span>
+                                <span class="badge bg-secondary" th:text="${detalle.cantidad + ' unidad(es)'}"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Tab Historial -->
+                <div class="tab-pane fade" id="historial" role="tabpanel">
+                    <div th:if="${prestamosHistorial.isEmpty()}" class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No tienes historial de préstamos.
+                    </div>
+
+                    <div th:each="prestamo : ${prestamosHistorial}" class="prestamo-card">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="mb-2">
+                                    <span class="badge badge-devuelto" th:text="${prestamo.estado}"></span>
+                                    Préstamo #<span th:text="${prestamo.id}"></span>
+                                </h5>
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar-alt text-muted"></i>
+                                    <strong>Préstamo:</strong> 
+                                    <span th:text="${#temporals.format(prestamo.fechaPrestamo, 'dd/MM/yyyy')}"></span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar-check text-success"></i>
+                                    <strong>Devuelto:</strong> 
+                                    <span th:text="${#temporals.format(prestamo.fechaDevolucionReal, 'dd/MM/yyyy')}"></span>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-store text-muted"></i>
+                                    <strong>Sucursal:</strong> <span th:text="${prestamo.sucursal.nombre}"></span>
+                                </p>
+                                <div th:if="${prestamo.multa > 0}" class="text-danger">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    <strong>Multa pagada:</strong> S/ <span th:text="${#numbers.formatDecimal(prestamo.multa, 1, 2)}"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a th:href="@{/prestamos/{id}(id=${prestamo.id})}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-eye"></i> Ver Detalle
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

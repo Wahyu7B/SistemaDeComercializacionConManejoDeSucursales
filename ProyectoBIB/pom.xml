@@ -70,11 +70,6 @@
             <version>5.3.0</version>
         </dependency>
         
-        <!-- Apache Commons -->
-        <dependency> <groupId>org.apache.commons</groupId> 
-        <artifactId>commons-lang3</artifactId> 
-        <version>3.14.0</version>
-        </dependency>
         
         <!-- Apache Commons IO -->
         <dependency>
@@ -90,6 +85,32 @@
             <artifactId>guava</artifactId>
             <version>33.2.1-jre</version>
         </dependency>
+
+        <!-- JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.3</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.3</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
         
     </dependencies>
 

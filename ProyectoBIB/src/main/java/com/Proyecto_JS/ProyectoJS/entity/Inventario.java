@@ -24,6 +24,18 @@ public class Inventario {
     @Column(nullable = false)
     private boolean activo;
 
+    @Column(name = "stock_prestamo", nullable = false)
+    private Integer stockPrestamo = 0;
+
+    // Getter y Setter
+    public Integer getStockPrestamo() {
+        return stockPrestamo;
+    }
+
+    public void setStockPrestamo(Integer stockPrestamo) {
+        this.stockPrestamo = stockPrestamo;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Sucursal getSucursal() { return sucursal; }

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionar Préstamos - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background: white;
+            min-height: 100vh;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .badge-activo { background-color: #28a745; }
+        .badge-vencido { background-color: #dc3545; }
+        .badge-devuelto { background-color: #6c757d; }
+        .badge-renovado { background-color: #17a2b8; }
+        .stat-card {
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        .stat-card.activos { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-card.vencidos { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .stat-card.hoy { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar p-0">
+                <div class="p-3">
+                    <h5 class="text-center mb-4">
+                        <i class="fas fa-book-reader text-primary"></i><br>
+                        <small>Admin Panel</small>
+                    </h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/dashboard">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/libros">
+                                <i class="fas fa-book"></i> Libros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/prestamos/admin/listar">
+                                <i class="fas fa-book-reader"></i> Préstamos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/pedidos">
+                                <i class="fas fa-shopping-cart"></i> Pedidos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/usuarios">
+                                <i class="fas fa-users"></i> Usuarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/reportes">
+                                <i class="fas fa-chart-bar"></i> Reportes
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link text-danger" href="/logout">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <div class="main-content">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>
+                            <i class="fas fa-book-reader text-primary"></i> Gestión de Préstamos
+                        </h2>
+                        <a href="/prestamos/admin/nuevo" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Nuevo Préstamo
+                        </a>
+                    </div>
+
+                    <!-- Estadísticas Rápidas -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="stat-card activos">
+                                <h6><i class="fas fa-book-open"></i> Préstamos Activos</h6>
+                                <h2 th:text="${prestamosActivos != null ? prestamosActivos.size() : 0}"></h2>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card vencidos">
+                                <h6><i class="fas fa-exclamation-triangle"></i> Préstamos Vencidos</h6>
+                                <h2 th:text="${prestamosVencidos != null ? prestamosVencidos.size() : 0}"></h2>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card hoy">
+                                <h6><i class="fas fa-calendar-day"></i> Devoluciones Hoy</h6>
+                                <h2>0</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alertas -->
+                    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <form method="get" action="/prestamos/admin/listar">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Estado</label>
+                                        <select class="form-select" name="estado">
+                                            <option value="">Todos</option>
+                                            <option value="ACTIVO">Activo</option>
+                                            <option value="VENCIDO">Vencido</option>
+                                            <option value="DEVUELTO">Devuelto</option>
+                                            <option value="RENOVADO">Renovado</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Usuario</label>
+                                        <input type="text" class="form-control" name="usuario" placeholder="Buscar por nombre o email">
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-primary me-2">
+                                            <i class="fas fa-search"></i> Buscar
+                                        </button>
+                                        <a href="/prestamos/admin/listar" class="btn btn-outline-secondary">
+                                            <i class="fas fa-redo"></i> Limpiar
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Préstamos -->
+                    <div class="table-responsive">
+                        <table id="tablaPrestamos" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Usuario</th>
+                                    <th>Sucursal</th>
+                                    <th>Fecha Préstamo</th>
+                                    <th>Fecha Límite</th>
+                                    <th>Estado</th>
+                                    <th>Multa</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="prestamo : ${prestamos}">
+                                    <td th:text="${prestamo.id}"></td>
+                                    <td>
+                                        <strong th:text="${prestamo.usuario.nombreCompleto}"></strong><br>
+                                        <small class="text-muted" th:text="${prestamo.usuario.email}"></small>
+                                    </td>
+                                    <td th:text="${prestamo.sucursal.nombre}"></td>
+                                    <td th:text="${#temporals.format(prestamo.fechaPrestamo, 'dd/MM/yyyy')}"></td>
+                                    <td th:text="${#temporals.format(prestamo.fechaDevolucionEsperada, 'dd/MM/yyyy')}"></td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${prestamo.estado.name() == 'ACTIVO'} ? 'badge-activo' : 
+                                                              (${prestamo.estado.name() == 'VENCIDO'} ? 'badge-vencido' : 'badge-devuelto')"
+                                              th:text="${prestamo.estado}"></span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${prestamo.multa > 0}" class="text-danger fw-bold">
+                                            S/ <span th:text="${#numbers.formatDecimal(prestamo.multa, 1, 2)}"></span>
+                                        </span>
+                                        <span th:if="${prestamo.multa == 0}" class="text-muted">-</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/prestamos/{id}(id=${prestamo.id})}" 
+                                           class="btn btn-sm btn-info" title="Ver detalle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a th:if="${prestamo.estado.name() == 'ACTIVO' || prestamo.estado.name() == 'VENCIDO'}"
+                                           th:href="@{/prestamos/admin/{id}/devolucion(id=${prestamo.id})}" 
+                                           class="btn btn-sm btn-success" title="Procesar devolución">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#tablaPrestamos').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+                },
+                order: [[0, 'desc']]
+            });
+        });
+    </script>
+</body>
+</html>
