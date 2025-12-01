@@ -58,7 +58,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Apache POI para manejo de Excel - VERSIONES ACTUALIZADAS Y COMPATIBLES -->
+        <!-- Apache POI -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
@@ -70,13 +70,13 @@
             <version>5.3.0</version>
         </dependency>
         
-        <!-- Apache Commons Lang para utilidades - VERSIÓN ACTUALIZADA -->
+        <!-- Apache Commons -->
         <dependency> <groupId>org.apache.commons</groupId> 
         <artifactId>commons-lang3</artifactId> 
         <version>3.14.0</version>
         </dependency>
         
-        <!-- Apache Commons IO para manejo de archivos - VERSIÓN ACTUALIZADA -->
+        <!-- Apache Commons IO -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
