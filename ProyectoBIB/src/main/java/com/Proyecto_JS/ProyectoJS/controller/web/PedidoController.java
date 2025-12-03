@@ -9,6 +9,7 @@ import com.Proyecto_JS.ProyectoJS.repository.UsuarioRepository;
 import com.Proyecto_JS.ProyectoJS.service.CarritoService;
 import com.Proyecto_JS.ProyectoJS.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +19,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.security.core.Authentication;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/pedido")
@@ -30,7 +33,6 @@ public class PedidoController {
     private CarritoService carritoService;
     @Autowired
     private UsuarioRepository usuarioRepository;
-
     @Autowired
     private SucursalRepository sucursalRepository;
 
@@ -42,9 +44,21 @@ public class PedidoController {
 
         Carrito carrito = carritoService.obtenerCarritoDelUsuario(usuario.getId());
         model.addAttribute("carrito", carrito);
-        
         model.addAttribute("sucursales", sucursalRepository.findAll());
-        
+
+        Map<String, Double> costosEnvio = new HashMap<>();
+        costosEnvio.put("La Victoria", 12.00);
+        costosEnvio.put("San Isidro", 15.00);
+        costosEnvio.put("Miraflores", 15.00);
+        costosEnvio.put("Surco", 18.00);
+        costosEnvio.put("Callao", 20.00);
+        costosEnvio.put("San Juan de Lurigancho", 25.00);
+        costosEnvio.put("Ate", 22.00);
+        costosEnvio.put("Breña", 13.00);
+        costosEnvio.put("Lince", 13.00);
+        costosEnvio.put("Pueblo Libre", 14.00);
+        model.addAttribute("costosEnvio", costosEnvio);
+
         return "public/checkout";
     }
 
@@ -56,21 +70,66 @@ public class PedidoController {
                                  @RequestParam(required = false) String direccion,
                                  RedirectAttributes redirectAttributes) {
         try {
-            Pedido nuevoPedido = pedidoService.crearPedido(carritoId, null, tipoEntrega, sucursalRecojoId); // Pasamos null para direccionEnvioId ya que no se usa
-            redirectAttributes.addFlashAttribute("successMessage", "¡Pedido #" + nuevoPedido.getId() + " creado con éxito!");
+            System.out.println(">>> procesarPedido()");
+            System.out.println("    tipoEntrega = " + tipoEntrega);
+            System.out.println("    sucursalRecojoId = " + sucursalRecojoId);
+            System.out.println("    distrito = " + distrito);
+            System.out.println("    direccion = " + direccion);
+
+            if ("RECOJO_TIENDA".equals(tipoEntrega) && sucursalRecojoId == null) {
+                System.out.println(">>> VALIDACION: falta sucursal para recojo en tienda");
+                redirectAttributes.addFlashAttribute("errorMessage", "Debes seleccionar una sucursal.");
+                return "redirect:/pedido/checkout";
+            }
+
+            if ("DELIVERY".equals(tipoEntrega)) {
+                if (distrito == null || distrito.isEmpty()) {
+                    System.out.println(">>> VALIDACION: falta distrito para delivery");
+                    redirectAttributes.addFlashAttribute("errorMessage", "Debes seleccionar un distrito.");
+                    return "redirect:/pedido/checkout";
+                }
+                if (direccion == null || direccion.trim().isEmpty()) {
+                    System.out.println(">>> VALIDACION: falta dirección para delivery");
+                    redirectAttributes.addFlashAttribute("errorMessage", "Debes ingresar una dirección.");
+                    return "redirect:/pedido/checkout";
+                }
+            }
+
+            Pedido nuevoPedido = pedidoService.crearPedido(
+                    carritoId,
+                    tipoEntrega,
+                    sucursalRecojoId,
+                    distrito,
+                    direccion
+            );
+
+            System.out.println(">>> Pedido creado correctamente. ID = " + nuevoPedido.getId());
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "¡Pedido #" + nuevoPedido.getId() + " creado en estado pendiente de pago!"
+            );
+
+            // Redirige a la pantalla del QR (funciona para recojo y delivery)
             return "redirect:/pedido/confirmacion/" + nuevoPedido.getId();
+
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error al procesar el pedido: " + e.getMessage());
+            System.out.println(">>> EXCEPCION en procesarPedido:");
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Error al procesar el pedido: " + e.getMessage()
+            );
             return "redirect:/pedido/checkout";
         }
     }
-    
+
     @GetMapping("/confirmacion/{id}")
     public String mostrarConfirmacionDePago(@PathVariable("id") Long id, Model model) {
         Pedido pedido = pedidoService.obtenerPedidoPorId(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Pedido no encontrado"));
-        
+
         model.addAttribute("pedido", pedido);
-        return "public/confirmacion-pago"; 
+        return "public/confirmacion-pago";
     }
 }

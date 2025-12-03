@@ -11,92 +11,192 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <header class="sticky-top">
-        <nav class="navbar navbar-expand-lg px-4 py-3">
-            <div class="container">
-                <a class="navbar-brand" th:href="@{/}">
-                    <img th:src="@{/images/LogoCIX.png}" alt="Logo Biblioteca Municipal CIX" class="logo-img">
-                    <span>Biblioteca Municipal CIX</span>
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        <li class="nav-item"><a class="nav-link" th:href="@{/catalogo}">Catálogo</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#ubicanos">Ubícanos</a></li>
-                        <li class="nav-item"><a class="nav-link" th:href="@{/carrito}">Mi Carrito</a></li>
-                        <li class="nav-item ms-lg-3" sec:authorize="isAnonymous()">
-                            <a class="btn btn-outline-dark" th:href="@{/login}">Iniciar Sesión</a>
-                        </li>
-                        <li class="nav-item dropdown ms-lg-3" sec:authorize="isAuthenticated()">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span sec:authentication="name"></span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" th:href="@{/perfil}">Mi Perfil</a></li>
-                                <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/admin/dashboard}">Panel de Admin</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form th:action="@{/logout}" method="post" class="d-inline">
-                                        <button type="submit" class="dropdown-item">Cerrar Sesión</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
+<header class="sticky-top">
+    <nav class="navbar navbar-expand-lg px-4 py-3">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <img th:src="@{/images/LogoCIX.png}" alt="Logo Biblioteca Municipal CIX" class="logo-img">
+                <span>Biblioteca Municipal CIX</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/catalogo}">Catálogo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#ubicanos">Ubícanos</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/carrito}">Mi Carrito</a></li>
+                    <li class="nav-item ms-lg-3" sec:authorize="isAnonymous()">
+                        <a class="btn btn-outline-dark" th:href="@{/login}">Iniciar Sesión</a>
+                    </li>
+                    <li class="nav-item dropdown ms-lg-3" sec:authorize="isAuthenticated()">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <span sec:authentication="name"></span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" th:href="@{/perfil}">Mi Perfil</a></li>
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item" th:href="@{/admin/dashboard}">Panel de Admin</a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Cerrar Sesión</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
+</header>
 
-    <main class="container my-5 py-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-7">
-                <div class="card shadow-sm border-0 confirmation-card">
-                    <div class="card-body text-center p-4 p-md-5">
-                        
+<main class="container my-5 py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 confirmation-card">
+                <div class="card-body p-4 p-md-5">
+
+                    <!-- Icono de éxito -->
+                    <div class="text-center mb-4">
                         <div class="confirmation-icon text-success mb-3">
-                            <i class="bi bi-check-circle-fill"></i>
+                            <i class="bi bi-check-circle-fill" style="font-size: 4rem;"></i>
                         </div>
-
                         <h1 class="h2">¡Pedido Creado con Éxito!</h1>
-                        <p class="lead text-muted">Solo falta un paso para completar tu compra.</p>
-                        
-                        <hr class="my-4">
-
-                        <h4 class="mb-3"><i class="bi bi-qr-code-scan"></i> Escanea para Pagar</h4>
-                        <p>Usa la cámara de tu celular con tu aplicación de Yape para escanear el siguiente código QR.</p>
-                        
-                        <div class="my-4">
-                            <img th:src="@{/images/qr-yape.png}" alt="Código QR de Yape" style="max-width: 280px; border-radius: 8px;">
-                        </div>
-
-                        <div class="alert alert-light text-center" role="alert">
-                            <strong class="d-block fs-5">Total a Pagar:</strong>
-                            <span class="display-6 text-dark fw-bold" th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}">S/ 0.00</span>
-                        </div>
-                        
-                        <p class="small text-muted mt-4">
-                            Recuerda que tu pedido <strong th:text="'#' + ${pedido.id}">#000</strong> está en espera. Una vez realizado el pago, nuestro equipo lo validará y recibirás un correo de confirmación para coordinar la entrega.
+                        <p class="lead text-muted">
+                            Pedido <strong th:text="'#' + ${pedido.id}">#000</strong>
                         </p>
-                        
-                        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
-                            <a th:href="@{/perfil}" class="btn btn-dark">Ver mi historial de pedidos</a>
-                            <a th:href="@{/}" class="btn btn-outline-secondary">Volver a la tienda</a>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Detalles del pedido -->
+                    <div class="mb-4">
+                        <h5 class="mb-3"><i class="bi bi-box-seam me-2"></i>Detalles de tu Pedido</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Libro</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-end">Precio</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="detalle : ${pedido.detalles}">
+                                    <td th:text="${detalle.libro.titulo}">Título del libro</td>
+                                    <td class="text-center" th:text="${detalle.cantidad}">1</td>
+                                    <!-- subtotal = precioUnitario * cantidad -->
+                                    <td class="text-end"
+                                        th:text="'S/ ' + ${#numbers.formatDecimal(detalle.precioUnitario * detalle.cantidad, 1, 2)}">
+                                        S/ 0.00
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+
+                    <!-- Información de entrega -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i th:class="${pedido.tipoEntrega.name() == 'DELIVERY' ? 'bi bi-truck me-2' : 'bi bi-shop me-2'}"></i>
+                            Método de Entrega
+                        </h5>
+                        <div class="alert alert-light">
+                            <div th:if="${pedido.tipoEntrega.name() == 'RECOJO_TIENDA'}">
+                                <strong>Recojo en Tienda</strong>
+                                <p class="mb-0 mt-2" th:if="${pedido.sucursalRecojo != null}">
+                                    <i class="bi bi-geo-alt"></i>
+                                    <span th:text="${pedido.sucursalRecojo.nombre}">Sucursal</span>
+                                </p>
+                            </div>
+                            <div th:if="${pedido.tipoEntrega.name() == 'DELIVERY'}">
+                                <strong>Delivery a Domicilio</strong>
+                                <p class="mb-1 mt-2">
+                                    <i class="bi bi-geo-alt"></i>
+                                    <strong>Distrito:</strong>
+                                    <span th:text="${pedido.distritoEntrega}">Distrito</span>
+                                </p>
+                                <p class="mb-0">
+                                    <i class="bi bi-house"></i>
+                                    <strong>Dirección:</strong>
+                                    <span th:text="${pedido.direccionEntrega}">Dirección completa</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumen de pago -->
+                    <div class="mb-4">
+                        <h5 class="mb-3"><i class="bi bi-receipt me-2"></i>Resumen de Pago</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total - pedido.costoEnvio, 1, 2)}">
+                                S/ 0.00
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Costo de Envío:</span>
+                            <span th:text="${pedido.costoEnvio.compareTo(T(java.math.BigDecimal).ZERO) == 0 ? 'Gratis' : 'S/ ' + #numbers.formatDecimal(pedido.costoEnvio, 1, 2)}">
+                                Gratis
+                            </span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Total:</strong>
+                            <strong class="text-success fs-5"
+                                    th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}">
+                                S/ 0.00
+                            </strong>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- QR de Yape -->
+                    <div class="text-center">
+                        <h4 class="mb-3"><i class="bi bi-qr-code-scan"></i> Escanea para Pagar</h4>
+                        <p>Usa la cámara de tu celular con tu aplicación de Yape para escanear el siguiente código QR.</p>
+
+                        <div class="my-4">
+                            <img th:src="@{/images/qr-yape.png}" alt="Código QR de Yape"
+                                 style="max-width: 280px; border-radius: 8px; border: 1px solid #dee2e6;">
+                        </div>
+
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Importante:</strong> Tu pedido está en estado
+                            <strong>PENDIENTE DE PAGO</strong>.
+                            Una vez realizado el pago, nuestro equipo lo validará y recibirás un correo de confirmación.
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+                        <a th:href="@{/perfil}" class="btn btn-dark btn-lg">
+                            <i class="bi bi-person-circle me-2"></i>Ver mis pedidos
+                        </a>
+                        <a th:href="@{/}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-house me-2"></i>Volver a la tienda
+                        </a>
+                    </div>
+
                 </div>
             </div>
         </div>
-    </main>
+    </div>
+</main>
 
-    <footer class="border-top py-4 mt-5">
-        <div class="container text-center text-muted">
-            <p class="mb-0">&copy; 2025 Libros como Alas. Todos los derechos reservados.</p>
-        </div>
-    </footer>
+<footer class="border-top py-4 mt-5">
+    <div class="container text-center text-muted">
+        <p class="mb-0">&copy; 2025 Libros como Alas. Todos los derechos reservados.</p>
+    </div>
+</footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

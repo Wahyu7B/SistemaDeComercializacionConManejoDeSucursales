@@ -16,7 +16,7 @@ public class Pedido {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
-    
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "carrito_id")
     private Carrito carrito;
@@ -38,6 +38,16 @@ public class Pedido {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "direccion_envio_id")
     private DireccionEnvio direccionEnvio;
+
+    // Campos para DELIVERY
+    @Column(name = "distrito_entrega", length = 100)
+    private String distritoEntrega;
+
+    @Column(name = "direccion_entrega", length = 500)
+    private String direccionEntrega;
+
+    @Column(name = "costo_envio", precision = 10, scale = 2)
+    private BigDecimal costoEnvio = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -127,6 +137,30 @@ public class Pedido {
         this.direccionEnvio = direccionEnvio;
     }
 
+    public String getDistritoEntrega() {
+        return distritoEntrega;
+    }
+
+    public void setDistritoEntrega(String distritoEntrega) {
+        this.distritoEntrega = distritoEntrega;
+    }
+
+    public String getDireccionEntrega() {
+        return direccionEntrega;
+    }
+
+    public void setDireccionEntrega(String direccionEntrega) {
+        this.direccionEntrega = direccionEntrega;
+    }
+
+    public BigDecimal getCostoEnvio() {
+        return costoEnvio;
+    }
+
+    public void setCostoEnvio(BigDecimal costoEnvio) {
+        this.costoEnvio = costoEnvio;
+    }
+
     public EstadoPedido getEstado() {
         return estado;
     }
@@ -166,5 +200,4 @@ public class Pedido {
     public void setDetalles(Set<PedidoDetalle> detalles) {
         this.detalles = detalles;
     }
-    
 }

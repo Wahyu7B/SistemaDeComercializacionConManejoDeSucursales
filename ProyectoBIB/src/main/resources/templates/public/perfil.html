@@ -101,10 +101,15 @@
                                         </th:block>
                                     </p>
                                     <p class="mb-0" th:if="${pedido.tipoEntrega.name() == 'RECOJO_TIENDA'}">
-                                        <strong>Entrega:</strong> Recojo en <span th:text="${pedido.sucursalRecojo.nombre}"></span>
+                                        <strong>Entrega:</strong> Recojo en
+                                        <span th:text="${pedido.sucursalRecojo != null ? pedido.sucursalRecojo.nombre : 'Sucursal no asignada'}"></span>
                                     </p>
+
                                     <p class="mb-0" th:if="${pedido.tipoEntrega.name() == 'DELIVERY'}">
-                                        <strong>Entrega:</strong> Envío a <span th:text="${pedido.direccionEnvio.distrito}"></span>
+                                        <strong>Entrega:</strong>
+                                        Envío a
+                                        <span th:text="${pedido.distritoEntrega}">Distrito</span>,
+                                        <span th:text="${pedido.direccionEntrega}">Dirección</span>
                                     </p>
                                 </div>
                                 <a href="#" class="btn btn-outline-dark btn-sm align-self-center disabled">Ver Detalles</a>

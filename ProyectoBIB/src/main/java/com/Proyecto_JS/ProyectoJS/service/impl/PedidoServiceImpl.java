@@ -1,10 +1,9 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/service/impl/PedidoServiceImpl.java
 package com.Proyecto_JS.ProyectoJS.service.impl;
 
 import com.Proyecto_JS.ProyectoJS.entity.*;
 import com.Proyecto_JS.ProyectoJS.exception.RecursoNoEncontradoException;
 import com.Proyecto_JS.ProyectoJS.repository.*;
-import com.Proyecto_JS.ProyectoJS.service.NotificacionService; // ✅ 1. IMPORTAR NUEVO SERVICIO
+import com.Proyecto_JS.ProyectoJS.service.NotificacionService;
 import com.Proyecto_JS.ProyectoJS.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,18 +26,20 @@ public class PedidoServiceImpl implements PedidoService {
     @Autowired
     private CarritoRepository carritoRepository;
     @Autowired
-    private DireccionEnvioRepository direccionEnvioRepository;
-    @Autowired
     private SucursalRepository sucursalRepository;
     @Autowired
     private InventarioRepository inventarioRepository;
     @Autowired
     private NotificacionService notificacionService;
 
-    // Tu método crearPedido se queda exactamente igual
     @Override
     @Transactional
-    public Pedido crearPedido(Long carritoId, Long direccionEnvioId, String tipoEntrega, Long sucursalRecojoId) {
+    public Pedido crearPedido(Long carritoId,
+                              String tipoEntrega,
+                              Long sucursalRecojoId,
+                              String distrito,
+                              String direccion) {
+
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Carrito no encontrado con id: " + carritoId));
 
@@ -48,22 +51,39 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setUsuario(carrito.getUsuario());
         pedido.setCarrito(carrito);
         pedido.setMoneda("PEN");
-        // Cambiamos el estado inicial para reflejar que necesita revisión
-        pedido.setEstado(Pedido.EstadoPedido.PAGO_EN_REVISION); 
+        pedido.setEstado(Pedido.EstadoPedido.PAGO_EN_REVISION);
         pedido.setCreatedAt(LocalDateTime.now());
         pedido.setUpdatedAt(LocalDateTime.now());
 
         Pedido.TipoEntrega entrega = Pedido.TipoEntrega.valueOf(tipoEntrega.toUpperCase());
         pedido.setTipoEntrega(entrega);
 
+        // Ajustar campos según tipo de entrega (para cumplir chk_entrega_coherente)
         if (entrega == Pedido.TipoEntrega.DELIVERY) {
-            DireccionEnvio direccion = direccionEnvioRepository.findById(direccionEnvioId)
-                    .orElseThrow(() -> new RecursoNoEncontradoException("Dirección de envío no encontrada con id: " + direccionEnvioId));
-            pedido.setDireccionEnvio(direccion);
+            // No sucursal, ni direccionEnvio antigua
+            pedido.setSucursalRecojo(null);
+            pedido.setDireccionEnvio(null);
+
+            // Datos de delivery
+            pedido.setDistritoEntrega(distrito);
+            pedido.setDireccionEntrega(direccion);
+
+            BigDecimal costoEnvio = calcularCostoEnvioPorDistrito(distrito);
+            pedido.setCostoEnvio(costoEnvio);
+
         } else if (entrega == Pedido.TipoEntrega.RECOJO_TIENDA) {
+            // Sin datos de delivery
+            pedido.setDistritoEntrega(null);
+            pedido.setDireccionEntrega(null);
+
+            // Sin direccionEnvio antigua
+            pedido.setDireccionEnvio(null);
+
             Sucursal sucursal = sucursalRepository.findById(sucursalRecojoId)
                     .orElseThrow(() -> new RecursoNoEncontradoException("Sucursal no encontrada con id: " + sucursalRecojoId));
             pedido.setSucursalRecojo(sucursal);
+
+            pedido.setCostoEnvio(BigDecimal.ZERO);
         }
 
         Set<PedidoDetalle> detalles = new HashSet<>();
@@ -76,13 +96,15 @@ public class PedidoServiceImpl implements PedidoService {
             detalle.setCantidad(item.getCantidad());
             detalle.setPrecioUnitario(item.getPrecioUnitario());
             detalle.setSucursalOrigen(item.getSucursal());
-            
+
             detalles.add(detalle);
             totalPedido = totalPedido.add(item.getSubtotal());
 
             actualizarStock(item);
         }
 
+        // Total = subtotal + costo de envío
+        totalPedido = totalPedido.add(pedido.getCostoEnvio() != null ? pedido.getCostoEnvio() : BigDecimal.ZERO);
         pedido.setTotal(totalPedido);
         pedido.setDetalles(detalles);
 
@@ -94,11 +116,29 @@ public class PedidoServiceImpl implements PedidoService {
         return pedidoGuardado;
     }
 
-    // Tu método actualizarStock se queda igual
+    private BigDecimal calcularCostoEnvioPorDistrito(String distrito) {
+        Map<String, Double> costos = new HashMap<>();
+        costos.put("La Victoria", 12.00);
+        costos.put("San Isidro", 15.00);
+        costos.put("Miraflores", 15.00);
+        costos.put("Surco", 18.00);
+        costos.put("Callao", 20.00);
+        costos.put("San Juan de Lurigancho", 25.00);
+        costos.put("Ate", 22.00);
+        costos.put("Breña", 13.00);
+        costos.put("Lince", 13.00);
+        costos.put("Pueblo Libre", 14.00);
+
+        return BigDecimal.valueOf(costos.getOrDefault(distrito, 0.0));
+    }
+
     private void actualizarStock(CarritoItem item) {
-        Inventario inventario = inventarioRepository.findBySucursalAndLibro(item.getSucursal(), item.getLibro())
-                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró inventario para el libro " + item.getLibro().getTitulo() + " en la sucursal " + item.getSucursal().getNombre()));
-        
+        Inventario inventario = inventarioRepository
+                .findBySucursalAndLibro(item.getSucursal(), item.getLibro())
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No se encontró inventario para el libro " + item.getLibro().getTitulo()
+                                + " en la sucursal " + item.getSucursal().getNombre()));
+
         if (inventario.getStockVenta() < item.getCantidad()) {
             throw new IllegalStateException("Stock insuficiente para el libro: " + item.getLibro().getTitulo());
         }
@@ -107,13 +147,11 @@ public class PedidoServiceImpl implements PedidoService {
         inventarioRepository.save(inventario);
     }
 
-    // Tu método obtenerPedidosPorUsuario se queda igual
     @Override
     public List<Pedido> obtenerPedidosPorUsuario(Usuario usuario) {
         return pedidoRepository.findByUsuario(usuario);
     }
 
-    // ✅ 3. IMPLEMENTACIÓN DE LOS NUEVOS MÉTODOS
     @Override
     @Transactional
     public void confirmarPedido(Long pedidoId) {
@@ -124,10 +162,9 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setUpdatedAt(LocalDateTime.now());
         pedidoRepository.save(pedido);
 
-        // ¡Aquí es donde llamamos al microservicio de Node.js!
         notificacionService.enviarConfirmacionDePedido(
-            pedido.getUsuario().getEmail(), 
-            pedido.getId()
+                pedido.getUsuario().getEmail(),
+                pedido.getId()
         );
     }
 
@@ -144,30 +181,27 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     @Transactional
     public void rechazarPedido(Long pedidoId) {
-        // 1. Buscamos el pedido
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Pedido no encontrado con id: " + pedidoId));
 
-        // 2. Cambiamos su estado a ANULADO
         pedido.setEstado(Pedido.EstadoPedido.ANULADO);
         pedido.setUpdatedAt(LocalDateTime.now());
-        
-        // 3. LÓGICA CLAVE: Devolvemos el stock al inventario
+
         for (PedidoDetalle detalle : pedido.getDetalles()) {
-            Inventario inventario = inventarioRepository.findBySucursalAndLibro(detalle.getSucursalOrigen(), detalle.getLibro())
-                    .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró inventario para el libro " + detalle.getLibro().getTitulo()));
-            
-            // Sumamos la cantidad del pedido de vuelta al stock de venta
+            Inventario inventario = inventarioRepository
+                    .findBySucursalAndLibro(detalle.getSucursalOrigen(), detalle.getLibro())
+                    .orElseThrow(() -> new RecursoNoEncontradoException(
+                            "No se encontró inventario para el libro " + detalle.getLibro().getTitulo()));
+
             inventario.setStockVenta(inventario.getStockVenta() + detalle.getCantidad());
             inventarioRepository.save(inventario);
         }
 
         pedidoRepository.save(pedido);
-            notificacionService.enviarRechazoDePedido(
-            pedido.getUsuario().getEmail(),
-            pedido.getId()
+
+        notificacionService.enviarRechazoDePedido(
+                pedido.getUsuario().getEmail(),
+                pedido.getId()
         );
-        
-        // Opcional: Podríamos llamar a NotificacionService para enviar un correo de "Pedido Rechazado".
     }
 }
