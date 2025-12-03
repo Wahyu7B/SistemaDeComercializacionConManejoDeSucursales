@@ -14,4 +14,5 @@ public interface UsuarioService {
     Usuario cambiarRol(Long usuarioId, Usuario.Rol nuevoRol);
 
     Usuario cambiarEstado(Long usuarioId, Usuario.EstadoUsuario nuevoEstado);
+    void eliminarUsuario(Long usuarioId);
 }

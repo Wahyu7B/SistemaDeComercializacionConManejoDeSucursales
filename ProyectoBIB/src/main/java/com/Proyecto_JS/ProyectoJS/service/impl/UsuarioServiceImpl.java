@@ -1,4 +1,3 @@
-// Ubicación: src/main/java/com/Proyecto_JS/ProyectoJS/service/impl/UsuarioServiceImpl.java
 package com.Proyecto_JS.ProyectoJS.service.impl;
 
 import com.Proyecto_JS.ProyectoJS.dto.UsuarioRegistroDTO;
@@ -33,9 +32,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setEstado(Usuario.EstadoUsuario.ACTIVO);
         usuario.setCreatedAt(LocalDateTime.now());
         usuario.setUpdatedAt(LocalDateTime.now());
-        
-        // ✅ LÍNEA CORREGIDA: Faltaba devolver el usuario guardado.
-        return usuarioRepository.save(usuario); 
+        return usuarioRepository.save(usuario);
     }
 
     @Override
@@ -59,5 +56,15 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado con ID: " + usuarioId));
         usuario.setEstado(nuevoEstado);
         return usuarioRepository.save(usuario);
+    }
+
+    // ✅ AGREGA ESTE MÉTODO PARA ELIMINAR USUARIOS
+    @Override
+    @Transactional
+    public void eliminarUsuario(Long usuarioId) {
+        if (!usuarioRepository.existsById(usuarioId)) {
+            throw new RecursoNoEncontradoException("Usuario no encontrado con ID: " + usuarioId);
+        }
+        usuarioRepository.deleteById(usuarioId);
     }
 }

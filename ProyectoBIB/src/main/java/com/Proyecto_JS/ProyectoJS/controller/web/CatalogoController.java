@@ -32,11 +32,16 @@ public class CatalogoController {
             Model model,
             @RequestParam(name = "query", required = false) String query,
             @RequestParam(name = "categoriaId", required = false) Long categoriaId,
+            @RequestParam(name = "modo", required = false) String modo,
             @RequestParam(name = "page", defaultValue = "0") int page
     ) {
+        // Determinar si es modo préstamo
+        boolean modoPrestamo = "prestamo".equalsIgnoreCase(modo);
+        
         Pageable pageable = PageRequest.of(page, 9);
         Page<Libro> paginaLibros;
 
+        // Búsqueda según filtros
         if (query != null && !query.isBlank() && categoriaId != null) {
             paginaLibros = libroRepository.findByTituloContainingIgnoreCaseAndCategoriaId(query, categoriaId, pageable);
         } else if (query != null && !query.isBlank()) {
@@ -47,11 +52,19 @@ public class CatalogoController {
             paginaLibros = libroRepository.findAll(pageable);
         }
 
+        // Si es modo préstamo, filtrar solo libros con stock de préstamo
+        if (modoPrestamo) {
+            // Nota: Este filtro se puede optimizar creando un query method específico
+            // Por ahora, el filtrado se hará en la vista con th:if
+        }
+
+        // Agregar atributos al modelo
         model.addAttribute("paginaLibros", paginaLibros);
         model.addAttribute("categorias", categoriaRepository.findAll());
         model.addAttribute("sucursales", sucursalRepository.findAll());
         model.addAttribute("query", query);
         model.addAttribute("categoriaId", categoriaId);
+        model.addAttribute("modoPrestamo", modoPrestamo); // NUEVO: indicador de modo
 
         return "public/catalogo";
     }

@@ -22,6 +22,9 @@ public interface PrestamoRepository extends JpaRepository<Prestamo, Long> {
     // Buscar préstamos por usuario y estado
     List<Prestamo> findByUsuarioIdAndEstado(Long usuarioId, EstadoPrestamo estado);
 
+    List<Prestamo> findByUsuarioId(Long usuarioId);
+
+
     // Buscar préstamos activos de un usuario
     @Query("SELECT p FROM Prestamo p WHERE p.usuario.id = :usuarioId AND p.estado = 'ACTIVO'")
     List<Prestamo> findPrestamosActivosByUsuario(@Param("usuarioId") Long usuarioId);

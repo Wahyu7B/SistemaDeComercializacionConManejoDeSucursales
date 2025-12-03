@@ -12,8 +12,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <!-- Iconos de Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header class="sticky-top">
@@ -23,7 +23,7 @@
                     <img th:src="@{/images/LogoCIX.png}" alt="Logo Biblioteca Municipal CIX" class="logo-img">
                     <span>Biblioteca Municipal CIX</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
@@ -35,11 +35,12 @@
                             <a class="btn btn-outline-dark" th:href="@{/login}">Iniciar Sesión</a>
                         </li>
                         <li class="nav-item dropdown ms-lg-3" sec:authorize="isAuthenticated()">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                                 <span sec:authentication="name"></span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" th:href="@{/perfil}">Mi Perfil</a></li>
+                                <li sec:authorize="hasRole('CLIENTE')"><a class="dropdown-item" th:href="@{/prestamos/mis-prestamos}"><i class="fas fa-book-reader"></i> Mis Préstamos</a></li>
                                 <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/admin/dashboard}">Panel de Admin</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
@@ -97,7 +98,7 @@
                     <div class="col" th:each="libro : ${paginaLibros.content}">
                         <div class="book-card h-100">
                             <div class="book-cover">
-                                <img th:src="${libro.portadaUrl ?: '/images/default-cover.jpg'}" class="img-fluid" th:alt-title="${libro.titulo}">
+                                <img th:src="${libro.portadaUrl ?: '/images/default-cover.jpg'}" class="img-fluid" th:alt="${libro.titulo}">
                             </div>
                             <div class="book-info p-3 d-flex flex-column">
                                 <h3 class="book-title h5 mb-1" th:text="${libro.titulo}">Título</h3>
@@ -105,7 +106,6 @@
                                 <div class="mt-auto">
                                     <p class="book-price fw-semibold" th:text="'S/ ' + ${#numbers.formatDecimal(libro.precioVenta, 1, 2)}">S/ 0.00</p>
                                     
-                                    <!-- Botón Ver detalles -->
                                     <button class="btn btn-link p-0 text-decoration-none mb-2 d-block" data-bs-toggle="modal" data-bs-target="#modalDetalleLibro" 
                                         th:data-libro-id="${libro.id}" th:data-titulo="${libro.titulo}" th:data-autor="${libro.autor}" th:data-editorial="${libro.editorial}"
                                         th:data-anio="${libro.anio}" th:data-isbn="${libro.isbn}" th:data-descripcion="${libro.descripcion}" 
@@ -113,27 +113,35 @@
                                         Ver detalles →
                                     </button>
                                     
-                                    <!-- Botones de Préstamo y Devolución -->
+                                    <!-- ==================== BOTONES: COMPRAR Y PRESTAR ==================== -->
                                     <div class="d-grid gap-2">
-                                        <div class="row g-2">
-                                            <div class="col-6">
-                                                <button class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalPrestamoLibro"
-                                                    th:data-libro-id="${libro.id}" 
-                                                    th:data-titulo="${libro.titulo}" 
-                                                    th:data-autor="${libro.autor}" 
-                                                    th:data-portada="${libro.portadaUrl ?: '/images/default-cover.jpg'}">
-                                                    <i class="bi bi-book"></i> Préstamo
-                                                </button>
-                                            </div>
-                                            <div class="col-6">
-                                                <button class="btn btn-warning btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalDevolucionLibro"
-                                                    th:data-libro-id="${libro.id}" 
-                                                    th:data-titulo="${libro.titulo}" 
-                                                    th:data-autor="${libro.autor}" 
-                                                    th:data-portada="${libro.portadaUrl ?: '/images/default-cover.jpg'}">
-                                                    <i class="bi bi-arrow-repeat"></i> Devolución
-                                                </button>
-                                            </div>
+                                        <!-- Botón Comprar -->
+                                        <form th:action="@{/carrito/agregar}" method="post">
+                                            <input type="hidden" name="libroId" th:value="${libro.id}" />
+                                            <input type="hidden" name="cantidad" value="1" />
+                                            <input type="hidden" name="sucursalId" th:value="${sucursales != null and !sucursales.isEmpty() ? sucursales[0].id : 1}" />
+                                            <button type="submit" class="btn btn-primary w-100">
+                                                <i class="fas fa-shopping-cart"></i> Comprar
+                                            </button>
+                                        </form>
+                                        
+                                        <!-- Botón Prestar -->
+                                        <button type="button" class="btn btn-success w-100" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#modalSolicitarPrestamo"
+                                                th:data-libro-id="${libro.id}"
+                                                th:data-titulo="${libro.titulo}"
+                                                th:data-portada="${libro.portadaUrl ?: '/images/default-cover.jpg'}">
+                                            <i class="fas fa-book-reader"></i> Solicitar Préstamo
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Botones de Admin -->
+                                    <div sec:authorize="hasRole('ADMIN')" class="mt-2">
+                                        <div class="d-grid">
+                                            <a th:href="@{/admin/dashboard}" class="btn btn-warning btn-sm w-100">
+                                                <i class="bi bi-gear"></i> Gestionar Préstamos
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -165,13 +173,13 @@
         </div>
     </footer>
 
-    <!-- Modal de Detalle de Libro (Compra) -->
-    <div class="modal fade" id="modalDetalleLibro" tabindex="-1" aria-labelledby="modalDetalleLibroLabel" aria-hidden="true">
+    <!-- Modal Detalle Libro -->
+    <div class="modal fade" id="modalDetalleLibro" tabindex="-1">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title" id="modalDetalleLibroLabel"><i class="bi bi-cart-plus"></i> Detalles del Libro</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <h5 class="modal-title"><i class="bi bi-info-circle"></i> Detalles del Libro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body py-0">
                     <div id="contenidoModalDetalle" class="text-center">
@@ -186,32 +194,61 @@
         </div>
     </div>
 
-    <!-- Modal para Préstamo de Libros -->
-    <div class="modal fade" id="modalPrestamoLibro" tabindex="-1" aria-labelledby="modalPrestamoLibroLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <!-- Modal Solicitar Préstamo -->
+    <div class="modal fade" id="modalSolicitarPrestamo" tabindex="-1">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="modalPrestamoLibroLabel"><i class="bi bi-book"></i> Solicitar Préstamo</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <h5 class="modal-title">
+                        <i class="fas fa-book-reader"></i> Solicitar Préstamo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div id="contenidoModalPrestamo"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Devolución de Libros -->
-    <div class="modal fade" id="modalDevolucionLibro" tabindex="-1" aria-labelledby="modalDevolucionLibroLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" id="modalDevolucionLibroLabel"><i class="bi bi-arrow-repeat"></i> Devolución de Libro</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="contenidoModalDevolucion"></div>
-                </div>
+                <form method="post" th:action="@{/prestamos/solicitar}">
+                    <div class="modal-body">
+                        <input type="hidden" name="libroId" id="prestamoLibroId">
+                        
+                        <div class="text-center mb-3">
+                            <img id="prestamoLibroPortada" src="" class="img-fluid rounded" style="max-height: 150px;">
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>¿Cómo funciona?</strong>
+                            <ul class="mb-0 mt-2 small">
+                                <li>Duración: 15 días</li>
+                                <li>Retiro en sucursal seleccionada</li>
+                                <li>Gratuito</li>
+                            </ul>
+                        </div>
+                        
+                        <p class="mb-3">
+                            <strong>Libro:</strong> <span id="prestamoLibroTitulo"></span>
+                        </p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Sucursal de Retiro *</label>
+                            <select name="sucursalId" class="form-select" required>
+                                <option value="">Selecciona una sucursal</option>
+                                <option th:each="sucursal : ${sucursales}" 
+                                        th:value="${sucursal.id}" 
+                                        th:text="${sucursal.nombre}"></option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Comentarios (opcional)</label>
+                            <textarea name="comentarios" class="form-control" rows="3" 
+                                      placeholder="Ej: Prefiero recogerlo en la tarde"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -223,7 +260,7 @@
             const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
             const sucursales = /*[[${sucursales}]]*/ [];
 
-            // Modal de Detalle (Compra) - Código existente
+            // Modal Detalle Libro
             const modalElement = document.getElementById('modalDetalleLibro');
             const contenidoModal = document.getElementById('contenidoModalDetalle');
 
@@ -243,7 +280,7 @@
 
                 let sucursalOptions = '';
                 if (sucursales && sucursales.length > 0) {
-                     sucursales.forEach(sucursal => {
+                    sucursales.forEach(sucursal => {
                         sucursalOptions += `<option value="${sucursal.id}">${sucursal.nombre}</option>`;
                     });
                 }
@@ -256,7 +293,11 @@
                         <div class="col-md-7 text-start">
                             <h2 class="h3 mb-2">${libro.titulo}</h2>
                             <h4 class="text-muted mb-3">${libro.autor}</h4>
-                            <div class="mb-3"><p class="mb-1"><strong>Editorial:</strong> ${libro.editorial || '—'}</p><p class="mb-1"><strong>Año:</strong> ${libro.anio || '—'}</p><p class="mb-1"><strong>ISBN:</strong> ${libro.isbn || '—'}</p></div>
+                            <div class="mb-3">
+                                <p class="mb-1"><strong>Editorial:</strong> ${libro.editorial || '—'}</p>
+                                <p class="mb-1"><strong>Año:</strong> ${libro.anio || '—'}</p>
+                                <p class="mb-1"><strong>ISBN:</strong> ${libro.isbn || '—'}</p>
+                            </div>
                             <hr class="my-3">
                             <h5 class="mb-2">Descripción</h5>
                             <p class="text-muted">${libro.descripcion || 'Sin descripción disponible.'}</p>
@@ -301,8 +342,8 @@
                                 bootstrap.Modal.getInstance(modalElement).hide();
                                 window.location.reload();
                             } else {
-                                 alert('❌ Para añadir al carrito, necesitas iniciar sesión.');
-                                 window.location.href = '/login';
+                                alert('❌ Para añadir al carrito, necesitas iniciar sesión.');
+                                window.location.href = '/login';
                             }
                         })
                         .catch(() => alert('⚠️ Error de conexión.'));
@@ -310,227 +351,21 @@
                 }
             });
 
-            // Modal de Préstamo - NUEVO
-            const modalPrestamo = document.getElementById('modalPrestamoLibro');
-            const contenidoModalPrestamo = document.getElementById('contenidoModalPrestamo');
-
-            modalPrestamo.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                const libro = {
-                    id: button.getAttribute('data-libro-id'),
-                    titulo: button.getAttribute('data-titulo'),
-                    autor: button.getAttribute('data-autor'),
-                    portada: button.getAttribute('data-portada')
-                };
-
-                let sucursalOptions = '';
-                if (sucursales && sucursales.length > 0) {
-                    sucursales.forEach(sucursal => {
-                        sucursalOptions += `<option value="${sucursal.id}">${sucursal.nombre}</option>`;
-                    });
-                }
-
-                // Calcular fechas
-                const fechaActual = new Date();
-                const fechaDevolucion = new Date(fechaActual);
-                fechaDevolucion.setDate(fechaActual.getDate() + 15);
-                const fechaDevolucionStr = fechaDevolucion.toLocaleDateString('es-PE');
-
-                contenidoModalPrestamo.innerHTML = `
-                    <div class="row g-3 mb-3">
-                        <div class="col-4">
-                            <img src="${libro.portada}" class="img-fluid rounded" alt="${libro.titulo}" style="max-height: 120px; object-fit: cover;">
-                        </div>
-                        <div class="col-8">
-                            <h6 class="mb-1">${libro.titulo}</h6>
-                            <p class="text-muted mb-0 small">${libro.autor}</p>
-                        </div>
-                    </div>
-                    <hr>
-                    <form id="formPrestamoModal" data-libro-id="${libro.id}">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label fw-medium"><i class="bi bi-geo-alt"></i> Sucursal de Recojo</label>
-                                <select name="sucursalId" class="form-select" required>
-                                    <option value="">Seleccionar sucursal...</option>
-                                    ${sucursalOptions}
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label fw-medium"><i class="bi bi-calendar"></i> Fecha de Préstamo</label>
-                                <input type="date" name="fechaPrestamo" class="form-control" value="${fechaActual.toISOString().split('T')[0]}" required readonly>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label fw-medium"><i class="bi bi-calendar-check"></i> Fecha de Devolución</label>
-                                <input type="text" class="form-control" value="${fechaDevolucionStr}" readonly>
-                                <small class="text-muted">15 días calendario</small>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label fw-medium"><i class="bi bi-chat-dots"></i> Notas adicionales (opcional)</label>
-                                <textarea name="notas" class="form-control" rows="2" placeholder="Comentarios o solicitudes especiales..."></textarea>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-book"></i> Solicitar Préstamo
-                            </button>
-                        </div>
-                    </form>
-                `;
-                
-                const formPrestamo = contenidoModalPrestamo.querySelector('#formPrestamoModal');
-                if (formPrestamo) {
-                    formPrestamo.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        const formData = new FormData(formPrestamo);
-                        const body = new URLSearchParams();
-                        formData.forEach((value, key) => body.append(key, value));
-                        body.append('libroId', formPrestamo.getAttribute('data-libro-id'));
-
-                        // Simulación de envío - Aquí conectarías con tu backend
-                        console.log('Datos del préstamo:', Object.fromEntries(body));
-                        
-                        // Para implementar con Spring Boot:
-                        /*
-                        fetch('/prestamos/solicitar', {
-                            method: 'POST',
-                            headers: { [csrfHeader]: csrfToken },
-                            body: body
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                alert('✅ Solicitud de préstamo registrada correctamente.');
-                                bootstrap.Modal.getInstance(modalPrestamo).hide();
-                            } else {
-                                alert('❌ Error al procesar la solicitud.');
-                            }
-                        })
-                        .catch(() => alert('⚠️ Error de conexión.'));
-                        */
-                        
-                        // Simulación por ahora
-                        setTimeout(() => {
-                            alert('✅ Solicitud de préstamo registrada correctamente.\n\n📋 Código de préstamo: PRS-' + Date.now().toString().slice(-6) + '\n📍 Sucursal: ' + formData.get('sucursalId') + '\n📅 Fecha límite: ' + fechaDevolucionStr);
-                            bootstrap.Modal.getInstance(modalPrestamo).hide();
-                        }, 500);
-                    });
-                }
-            });
-
-            // Modal de Devolución - NUEVO
-            const modalDevolucion = document.getElementById('modalDevolucionLibro');
-            const contenidoModalDevolucion = document.getElementById('contenidoModalDevolucion');
-
-            modalDevolucion.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                const libro = {
-                    id: button.getAttribute('data-libro-id'),
-                    titulo: button.getAttribute('data-titulo'),
-                    autor: button.getAttribute('data-autor'),
-                    portada: button.getAttribute('data-portada')
-                };
-
-                let sucursalOptions = '';
-                if (sucursales && sucursales.length > 0) {
-                    sucursales.forEach(sucursal => {
-                        sucursalOptions += `<option value="${sucursal.id}">${sucursal.nombre}</option>`;
-                    });
-                }
-
-                const fechaActual = new Date().toISOString().split('T')[0];
-
-                contenidoModalDevolucion.innerHTML = `
-                    <div class="row g-3 mb-3">
-                        <div class="col-4">
-                            <img src="${libro.portada}" class="img-fluid rounded" alt="${libro.titulo}" style="max-height: 120px; object-fit: cover;">
-                        </div>
-                        <div class="col-8">
-                            <h6 class="mb-1">${libro.titulo}</h6>
-                            <p class="text-muted mb-0 small">${libro.autor}</p>
-                        </div>
-                    </div>
-                    <hr>
-                    <form id="formDevolucionModal" data-libro-id="${libro.id}">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label fw-medium"><i class="bi bi-upc-scan"></i> Código de Préstamo</label>
-                                <input type="text" name="codigoPrestamo" class="form-control" placeholder="Ej: PRS-2025-001234" required>
-                                <small class="text-muted">Código proporcionado al momento del préstamo</small>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label fw-medium"><i class="bi bi-geo-alt"></i> Sucursal de Devolución</label>
-                                <select name="sucursalId" class="form-select" required>
-                                    <option value="">Seleccionar sucursal...</option>
-                                    ${sucursalOptions}
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label fw-medium"><i class="bi bi-calendar"></i> Fecha de Devolución</label>
-                                <input type="date" name="fechaDevolucion" class="form-control" value="${fechaActual}" required>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label fw-medium"><i class="bi bi-clipboard-check"></i> Estado del Libro</label>
-                                <select name="estadoLibro" class="form-select" required>
-                                    <option value="">Seleccionar estado...</option>
-                                    <option value="excelente"><i class="bi bi-star-fill"></i> Excelente estado</option>
-                                    <option value="bueno">👍 Buen estado</option>
-                                    <option value="regular">⚠️ Estado regular</option>
-                                    <option value="malo">❌ Estado deteriorado</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label fw-medium"><i class="bi bi-chat-square-text"></i> Observaciones (opcional)</label>
-                                <textarea name="observaciones" class="form-control" rows="2" placeholder="Describe el estado del libro o cualquier incidencia..."></textarea>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-warning">
-                                <i class="bi bi-arrow-repeat"></i> Procesar Devolución
-                            </button>
-                        </div>
-                    </form>
-                `;
-                
-                const formDevolucion = contenidoModalDevolucion.querySelector('#formDevolucionModal');
-                if (formDevolucion) {
-                    formDevolucion.addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        const formData = new FormData(formDevolucion);
-                        const body = new URLSearchParams();
-                        formData.forEach((value, key) => body.append(key, value));
-                        body.append('libroId', formDevolucion.getAttribute('data-libro-id'));
-
-                        // Simulación de envío - Aquí conectarías con tu backend
-                        console.log('Datos de devolución:', Object.fromEntries(body));
-                        
-                        // Para implementar con Spring Boot:
-                        /*
-                        fetch('/prestamos/devolver', {
-                            method: 'POST',
-                            headers: { [csrfHeader]: csrfToken },
-                            body: body
-                        })
-                        .then(response => {
-                            if (response.ok) {
-                                alert('✅ Devolución procesada correctamente.');
-                                bootstrap.Modal.getInstance(modalDevolucion).hide();
-                            } else {
-                                alert('❌ Error al procesar la devolución.');
-                            }
-                        })
-                        .catch(() => alert('⚠️ Error de conexión.'));
-                        */
-                        
-                        // Simulación por ahora
-                        setTimeout(() => {
-                            alert('✅ Devolución procesada correctamente.\n\n📋 Código: ' + formData.get('codigoPrestamo') + '\n📍 Sucursal: ' + formData.get('sucursalId') + '\n📅 Fecha: ' + formData.get('fechaDevolucion') + '\n📊 Estado: ' + formData.get('estadoLibro'));
-                            bootstrap.Modal.getInstance(modalDevolucion).hide();
-                        }, 500);
-                    });
-                }
-            });
+            // Modal Solicitar Préstamo
+            const modalPrestamo = document.getElementById('modalSolicitarPrestamo');
+            
+            if (modalPrestamo) {
+                modalPrestamo.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const libroId = button.getAttribute('data-libro-id');
+                    const titulo = button.getAttribute('data-titulo');
+                    const portada = button.getAttribute('data-portada');
+                    
+                    document.getElementById('prestamoLibroId').value = libroId;
+                    document.getElementById('prestamoLibroTitulo').textContent = titulo;
+                    document.getElementById('prestamoLibroPortada').src = portada || '/images/default-cover.jpg';
+                });
+            }
         });
     </script>
 </body>

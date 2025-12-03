@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestionar Préstamos - Libros como Alas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <h4><i class="bi bi-book-half me-2"></i>Libros como Alas</h4>
+                <small>Panel de Administración</small>
+            </div>
+            
+            <nav>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/dashboard}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/pedidos}">
+                            <i class="bi bi-cart3"></i> Pedidos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/libros}">
+                            <i class="bi bi-book"></i> Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/admin/prestamos}">
+                            <i class="bi bi-bookmark-check"></i> Préstamos
+                            <span th:if="${prestamosPendientes > 0}" 
+                                  class="badge bg-warning text-dark ms-2" 
+                                  th:text="${prestamosPendientes}">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/usuarios}">
+                            <i class="bi bi-people"></i> Usuarios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/reportes}">
+                            <i class="bi bi-graph-up-arrow"></i> Reportes
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="user-info mt-auto">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff&size=64" alt="Admin">
+                <p class="mb-1">Administrador</p>
+                <small>Sistema activo</small>
+            </div>
+            
+            <div class="mt-3">
+                <a class="nav-link" th:href="@{/}">
+                    <i class="bi bi-arrow-left"></i> Volver a Tienda
+                </a>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="content">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="display-6"><i class="bi bi-bookmark-check me-2"></i>Gestión de Préstamos</h1>
+                            <p class="text-muted mb-0">Administra las solicitudes de préstamo de libros</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Actualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métricas Rápidas -->
+            <div class="row mb-4 g-3">
+                <div class="col-md-4">
+                    <div class="metric-card gradient-card-warning">
+                        <div class="metric-icon"><i class="bi bi-clock-history"></i></div>
+                        <h3 class="metric-value" th:text="${prestamosPendientes}">0</h3>
+                        <p class="mb-0">Solicitudes Pendientes</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card gradient-card-success">
+                        <div class="metric-icon"><i class="bi bi-check-circle"></i></div>
+                        <h3 class="metric-value" th:text="${prestamosAprobados}">0</h3>
+                        <p class="mb-0">Préstamos Aprobados</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card gradient-card-info">
+                        <div class="metric-icon"><i class="bi bi-bookmarks"></i></div>
+                        <h3 class="metric-value" th:text="${totalPrestamos}">0</h3>
+                        <p class="mb-0">Total de Solicitudes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensajes -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+                <i class="bi bi-check-circle me-2"></i>
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Tabla de Préstamos -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Solicitudes de Préstamo</h5>
+                        
+                        <!-- Sin solicitudes -->
+                        <div th:if="${solicitudesPrestamo == null or solicitudesPrestamo.isEmpty()}" 
+                             class="text-center py-5">
+                            <i class="bi bi-inbox text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                            <p class="text-muted mt-3 mb-1 fs-5">No hay solicitudes de préstamo</p>
+                            <small class="text-muted">Las nuevas solicitudes aparecerán aquí automáticamente</small>
+                        </div>
+                        
+                        <!-- Tabla -->
+                        <div th:if="${solicitudesPrestamo != null and !solicitudesPrestamo.isEmpty()}" 
+                             class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#ID</th>
+                                        <th>Usuario</th>
+                                        <th>Libro</th>
+                                        <th>Sucursal</th>
+                                        <th>Fecha Solicitud</th>
+                                        <th>Devolución Esperada</th>
+                                        <th>Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="prestamo : ${solicitudesPrestamo}">
+                                        <td>
+                                            <strong class="text-primary" th:text="'#' + ${prestamo.id}">#1</strong>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <strong th:text="${prestamo.usuario.nombreCompleto}">Usuario</strong>
+                                                <br>
+                                                <small class="text-muted" th:text="${prestamo.usuario.email}">email@ejemplo.com</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div th:if="${!prestamo.detalles.isEmpty()}">
+                                                <strong th:text="${prestamo.detalles[0].libro.titulo}">Libro</strong>
+                                                <br>
+                                                <small class="text-muted" th:text="${prestamo.detalles[0].libro.autor}">Autor</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-geo-alt text-primary me-1"></i>
+                                            <span th:text="${prestamo.sucursal.nombre}">Sucursal</span>
+                                        </td>
+                                        <td>
+                                            <small th:text="${#temporals.format(prestamo.fechaSolicitud, 'dd/MM/yyyy')}">02/12/2025</small>
+                                        </td>
+                                        <td>
+                                            <small th:text="${#temporals.format(prestamo.fechaDevolucionEsperada, 'dd/MM/yyyy')}">17/12/2025</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${prestamo.observaciones != null and prestamo.observaciones.contains('Aprobado')} ? 'bg-success' : 'bg-warning text-dark'"
+                                                  th:text="${prestamo.observaciones != null and prestamo.observaciones.contains('Aprobado')} ? 'Aprobado' : 'Pendiente'">
+                                                Pendiente
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <form th:action="@{/admin/prestamos/aprobar}" method="post" class="d-inline"
+                                                      th:if="${prestamo.observaciones == null or !prestamo.observaciones.contains('Aprobado')}">
+                                                    <input type="hidden" name="prestamoId" th:value="${prestamo.id}">
+                                                    <button type="submit" class="btn btn-success" title="Aprobar"
+                                                            onclick="return confirm('¿Aprobar este préstamo?')">
+                                                        <i class="bi bi-check-circle"></i> Aprobar
+                                                    </button>
+                                                </form>
+                                                
+                                                <form th:action="@{/admin/prestamos/rechazar}" method="post" class="d-inline ms-1">
+                                                    <input type="hidden" name="prestamoId" th:value="${prestamo.id}">
+                                                    <button type="submit" class="btn btn-danger" title="Rechazar"
+                                                            onclick="return confirm('¿Rechazar este préstamo?')">
+                                                        <i class="bi bi-x-circle"></i> Rechazar
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

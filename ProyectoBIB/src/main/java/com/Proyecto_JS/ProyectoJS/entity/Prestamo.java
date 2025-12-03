@@ -3,6 +3,7 @@ package com.Proyecto_JS.ProyectoJS.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,28 @@ public class Prestamo {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "fecha_solicitud")
+    private LocalDate fechaSolicitud;
+
+    @Column(name = "comentarios", length = 500)
+    private String comentarios;
+
+    public LocalDate getFechaSolicitud() {
+        return fechaSolicitud;
+    }
+
+    public void setFechaSolicitud(LocalDate fechaSolicitud) {
+        this.fechaSolicitud = fechaSolicitud;
+    }
+
+    public String getComentarios() {
+        return comentarios;
+    }
+
+    public void setComentarios(String comentarios) {
+        this.comentarios = comentarios;
+    }
 
     public enum EstadoPrestamo {
         ACTIVO, DEVUELTO, VENCIDO, RENOVADO

@@ -8,6 +8,7 @@
     <title>Biblioteca Municipal CIX | Tu red de librerías</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -27,6 +28,7 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto align-items-center">
                         <li class="nav-item"><a class="nav-link" th:href="@{/catalogo}">Catálogo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#prestamos">Préstamos</a></li>
                         <li class="nav-item"><a class="nav-link" href="#ubicanos">Ubícanos</a></li>
                         <li class="nav-item"><a class="nav-link" th:href="@{/carrito}">Mi Carrito</a></li>
                         <li class="nav-item ms-lg-3" sec:authorize="isAnonymous()">
@@ -38,6 +40,7 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" th:href="@{/perfil}">Mi Perfil</a></li>
+                                <li sec:authorize="hasRole('CLIENTE')"><a class="dropdown-item" th:href="@{/prestamos/mis-prestamos}"><i class="fas fa-book-reader"></i> Mis Préstamos</a></li>
                                 <li sec:authorize="hasRole('ADMIN')"><a class="dropdown-item" th:href="@{/admin/dashboard}">Panel de Admin</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
@@ -53,6 +56,7 @@
         </nav>
     </header>
 
+    <!-- SECCIÓN HERO -->
     <section class="hero-section-v2">
         <div class="container">
             <div class="row align-items-center g-5">
@@ -68,13 +72,14 @@
         </div>
     </section>
 
+    <!-- SECCIÓN DE NOVEDADES DESTACADAS -->
     <main class="container my-5">
         <h2 class="text-center mb-5 display-6">Novedades Destacadas</h2>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
             <div class="col" th:each="libro : ${librosDestacados}">
                 <div class="book-card h-100">
                     <div class="book-cover">
-                        <img th:src="${libro.portadaUrl ?: '/images/default-cover.jpg'}" class="img-fluid" th:alt-title="${libro.titulo}">
+                        <img th:src="${libro.portadaUrl ?: '/images/default-cover.jpg'}" class="img-fluid" th:alt="${libro.titulo}">
                     </div>
                     <div class="book-info p-3 d-flex flex-column">
                         <h3 class="book-title h5 mb-1" th:text="${libro.titulo}">Título</h3>
@@ -99,8 +104,84 @@
             </div>
         </div>
     </main>
+
+    <!-- ==================== SECCIÓN DE PRÉSTAMOS ==================== -->
+    <section id="prestamos" class="py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 text-white">
+                    <h2 class="mb-4 fw-bold">
+                        <i class="fas fa-book-reader"></i> Sistema de Préstamos de Libros
+                    </h2>
+                    <p class="lead mb-4">
+                        ¿Te gustaría leer un libro pero no comprarlo? Tenemos un servicio de préstamos disponible en todas nuestras sucursales.
+                    </p>
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-check-circle fa-2x me-3 text-warning"></i>
+                                <div>
+                                    <h5 class="mb-1">Hasta 15 días</h5>
+                                    <p class="mb-0 small">Préstamos con opción de renovación</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-book fa-2x me-3 text-warning"></i>
+                                <div>
+                                    <h5 class="mb-1">+500 Títulos</h5>
+                                    <p class="mb-0 small">Amplio catálogo disponible</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-hand-holding-heart fa-2x me-3 text-warning"></i>
+                                <div>
+                                    <h5 class="mb-1">Sin Costo</h5>
+                                    <p class="mb-0 small">Sin membresía ni cuotas</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-store fa-2x me-3 text-warning"></i>
+                                <div>
+                                    <h5 class="mb-1">3 Sucursales</h5>
+                                    <p class="mb-0 small">Recoge en tu sucursal favorita</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a th:href="@{/prestamos/mis-prestamos}" class="btn btn-warning btn-lg px-4" sec:authorize="isAuthenticated()">
+                            <i class="fas fa-user-circle"></i> Mis Préstamos
+                        </a>
+                        <a th:href="@{/login}" class="btn btn-warning btn-lg px-4" sec:authorize="isAnonymous()">
+                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                        </a>
+                        <a th:href="@{/catalogo}" class="btn btn-outline-light btn-lg px-4">
+                            <i class="fas fa-search"></i> Explorar Libros
+                        </a>
+                    </div>
+                    <p class="mt-3 mb-0 small">
+                        <i class="fas fa-info-circle"></i> 
+                        Solicita préstamos directamente desde el catálogo con el botón verde "Solicitar Préstamo".
+                    </p>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="https://img.freepik.com/free-vector/hand-drawn-flat-design-stack-books-illustration_23-2149341898.jpg" 
+                         alt="Sistema de Préstamos" 
+                         class="img-fluid rounded shadow-lg"
+                         style="max-width: 450px;">
+                </div>
+            </div>
+        </div>
+    </section>
     
-    <section id="ubicanos" class="sucursales-section py-5">
+    <!-- SECCIÓN DE SUCURSALES -->
+    <section id="ubicanos" class="sucursales-section py-5 bg-light">
         <div class="container">
             <div class="text-center mb-5">
                 <h2 class="display-6">Nuestras Sucursales</h2>
@@ -136,12 +217,14 @@
         </div>
     </section>
 
+    <!-- FOOTER -->
     <footer class="border-top py-4 mt-5">
         <div class="container text-center text-muted">
             <p class="mb-0">© 2025 Libros como Alas. Todos los derechos reservados.</p>
         </div>
     </footer>
 
+    <!-- MODAL DETALLE LIBRO -->
     <div class="modal fade" id="modalDetalleLibro" tabindex="-1" aria-labelledby="modalDetalleLibroLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">

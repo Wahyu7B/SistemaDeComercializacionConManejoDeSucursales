@@ -48,6 +48,8 @@ public class PrestamoController {
 
         // Obtener todos los préstamos del usuario
         List<Prestamo> todosPrestamos = prestamoService.listarPorUsuario(usuario.getId());
+        
+        System.out.println("📚 Total préstamos encontrados: " + todosPrestamos.size());
 
         // Separar en activos e historial
         List<Prestamo> prestamosActivos = todosPrestamos.stream()
@@ -62,8 +64,10 @@ public class PrestamoController {
 
         model.addAttribute("prestamosActivos", prestamosActivos);
         model.addAttribute("prestamosHistorial", prestamosHistorial);
+        model.addAttribute("prestamos", todosPrestamos);
+        model.addAttribute("usuario", usuario);
         
-        return "prestamos/mis-prestamos";
+        return "public/mis-prestamos"; // ← CAMBIO AQUÍ
     }
 
     /**
@@ -107,7 +111,6 @@ public class PrestamoController {
         }
 
         try {
-            // Obtener ID del admin autenticado
             Usuario admin = usuarioRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Admin no encontrado"));
             
@@ -136,7 +139,6 @@ public class PrestamoController {
             prestamos = prestamoService.listarTodos();
         }
 
-        // Calcular estadísticas
         List<Prestamo> prestamosActivos = prestamoService.listarPorEstado(Prestamo.EstadoPrestamo.ACTIVO);
         List<Prestamo> prestamosVencidos = prestamoService.listarPorEstado(Prestamo.EstadoPrestamo.VENCIDO);
 
@@ -197,7 +199,6 @@ public class PrestamoController {
         }
 
         try {
-            // Obtener ID del admin que procesa la devolución
             Usuario admin = usuarioRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Admin no encontrado"));
             
