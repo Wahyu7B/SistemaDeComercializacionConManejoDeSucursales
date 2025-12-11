@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -27,41 +28,43 @@ public class SecurityConfig {
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests(authorize -> authorize
-                // Rutas públicas
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/", "/catalogo/**", "/registro", "/api/auth/**").permitAll()
-                // Rutas autenticadas
-                .requestMatchers("/carrito/**", "/perfil").authenticated()
-                // Rutas de admin
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/", true)
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
-                .permitAll()
-            )
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**") // Deshabilitar CSRF para API REST
-                .ignoringRequestMatchers("/admin/reportes/exportar-catalogo-excel")
-                .ignoringRequestMatchers("/admin/reportes/exportar-top-vendidos-excel")
-            )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-            );
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests(authorize -> authorize
+            // Rutas públicas
+            .requestMatchers("/css/**", "/js/**", "/images/**", "/", "/catalogo/**", "/registro", "/api/auth/**").permitAll()
+            // Rutas autenticadas
+            .requestMatchers("/carrito/**", "/perfil").authenticated()
+            // Rutas de admin
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        .formLogin(form -> form
+            .loginPage("/login")
+            .defaultSuccessUrl("/", true)
+            .permitAll()
+        )
+        .logout(logout -> logout
+            .logoutUrl("/logout")
+            .logoutSuccessUrl("/login?logout")
+            .permitAll()
+        )
+        .csrf(csrf -> csrf
+            // Configurar el repositorio de tokens CSRF
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            // Solo deshabilitar CSRF para endpoints de autenticación JWT
+            .ignoringRequestMatchers("/api/auth/**") // Solo auth, no todo /api/**
+        )
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+        );
 
-        // Agregar filtro JWT ANTES del filtro de autenticación estándar
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-            
-        return http.build();
-    }
+    // Agregar filtro JWT ANTES del filtro de autenticación estándar
+    http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        
+    return http.build();
+}
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
