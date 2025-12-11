@@ -13,20 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
- * Utilidad para manejar tokens JWT (JSON Web Tokens).
- * 
- * Funcionalidades:
- * - Generar tokens JWT para usuarios autenticados
- * - Validar tokens JWT recibidos
- * - Extraer información (claims) de tokens
- * - Verificar expiración de tokens
- * 
- * Configuración:
- * - Algoritmo: HS256 (HMAC with SHA-256)
- * - Tiempo de expiración: 10 horas
- * - Clave secreta: Generada a partir de string (en producción usar variable de entorno)
- */
 @Component
 public class JwtUtil {
 
@@ -105,10 +91,6 @@ public class JwtUtil {
 
     /**
      * Valida el token JWT
-     * 
-     * Verifica que:
-     * 1. El username del token coincida con el usuario autenticado
-     * 2. El token no haya expirado
      * 
      * @param token - Token JWT a validar
      * @param userDetails - Detalles del usuario autenticado
