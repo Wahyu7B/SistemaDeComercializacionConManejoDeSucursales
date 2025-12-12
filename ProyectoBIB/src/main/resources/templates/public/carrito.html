@@ -62,14 +62,16 @@
         <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
-        <div th:if="${carrito == null or carrito.items.isEmpty()}" class="text-center py-5 empty-cart-container">
+        <!-- CAMBIO AQUÍ: Línea 65 -->
+        <div th:if="${carrito == null or #lists.isEmpty(carrito.items)}" class="text-center py-5 empty-cart-container">
             <i class="bi bi-cart-x" style="font-size: 5rem; color: #ccc;"></i>
             <p class="text-muted fs-4 mt-3">Tu carrito está vacío.</p>
             <p>Parece que aún no has añadido ningún libro. ¡Anímate a explorar!</p>
             <a th:href="@{/catalogo}" class="btn btn-dark mt-3">Explorar Catálogo</a>
         </div>
 
-        <div th:if="${carrito != null and not carrito.items.isEmpty()}">
+        <!-- CAMBIO AQUÍ: Línea 75 -->
+        <div th:if="${carrito != null and not #lists.isEmpty(carrito.items)}">
             <div class="row g-5">
                 <div class="col-lg-8">
                     <div class="cart-items-table">

@@ -2,8 +2,10 @@ package com.Proyecto_JS.ProyectoJS.controller.admin;
 
 import com.Proyecto_JS.ProyectoJS.entity.Pedido;
 import com.Proyecto_JS.ProyectoJS.service.PedidoService;
+import org.hibernate.Hibernate; // AGREGAR
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional; // AGREGAR
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,9 +23,35 @@ public class GestionPedidoController {
     private PedidoService pedidoService;
 
     @GetMapping("")
+    @Transactional // AGREGAR @Transactional
     public String mostrarPedidosParaGestionar(Model model) {
         List<Pedido> pedidosPendientes = pedidoService.obtenerPedidosPorEstado(Pedido.EstadoPedido.PAGO_EN_REVISION);
+        
+        // INICIALIZAR TODAS LAS RELACIONES LAZY
+        pedidosPendientes.forEach(pedido -> {
+            // Usuario
+            if (pedido.getUsuario() != null) {
+                Hibernate.initialize(pedido.getUsuario());
+            }
+            // Sucursal
+            if (pedido.getSucursalRecojo() != null) {
+                Hibernate.initialize(pedido.getSucursalRecojo());
+            }
+            // Detalles y libros
+            if (pedido.getDetalles() != null) {
+                Hibernate.initialize(pedido.getDetalles());
+                pedido.getDetalles().forEach(detalle -> {
+                    if (detalle.getLibro() != null) {
+                        Hibernate.initialize(detalle.getLibro());
+                    }
+                });
+            }
+        });
+        
         model.addAttribute("pedidos", pedidosPendientes);
+        
+        System.out.println("📦 Pedidos pendientes cargados: " + pedidosPendientes.size());
+        
         return "admin/gestionar-pedidos"; 
     }
 

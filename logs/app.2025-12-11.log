@@ -1,0 +1,36 @@
+2025-12-11 11:00:39,646 INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2025-12-11 11:00:39,702 INFO  com.Proyecto_JS.ProyectoJS.ProyectoJsApplication - Starting ProyectoJsApplication using Java 21 with PID 10420 (C:\Users\israe\OneDrive\Pictures\GIT BIBLIO ISRA\SistemaDeComercializacionConManejoDeSucursales\ProyectoBIB\target\classes started by israe in C:\Users\israe\OneDrive\Pictures\GIT BIBLIO ISRA\SistemaDeComercializacionConManejoDeSucursales)
+2025-12-11 11:00:39,703 INFO  com.Proyecto_JS.ProyectoJS.ProyectoJsApplication - No active profile set, falling back to 1 default profile: "default"
+2025-12-11 11:00:39,747 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-12-11 11:00:39,747 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-12-11 11:00:40,642 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-11 11:00:40,824 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 174 ms. Found 14 JPA repository interfaces.
+2025-12-11 11:00:41,651 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-12-11 11:00:41,666 INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-12-11 11:00:41,668 INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-12-11 11:00:41,669 INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.33]
+2025-12-11 11:00:41,738 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-12-11 11:00:41,739 INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1990 ms
+2025-12-11 11:00:41,890 INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-11 11:00:41,981 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.10.Final
+2025-12-11 11:00:42,019 INFO  org.hibernate.cache.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-12-11 11:00:42,230 INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-11 11:00:42,266 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-12-11 11:00:42,421 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@751b0819
+2025-12-11 11:00:42,423 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-12-11 11:00:42,461 WARN  org.hibernate.dialect.Dialect - HHH000511: The 5.5.0 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2025-12-11 11:00:42,468 WARN  org.hibernate.orm.deprecation - HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-12-11 11:00:43,469 INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-12-11 11:00:44,682 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-11 11:00:45,053 INFO  com.Proyecto_JS.ProyectoJS.config.StartupLogger - Aplicación iniciada y logging configurado correctamente
+2025-12-11 11:00:45,126 INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-12-11 11:00:45,811 WARN  org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-11 11:00:45,903 INFO  org.springframework.boot.autoconfigure.web.servlet.WelcomePageHandlerMapping - Adding welcome page template: index
+2025-12-11 11:00:46,112 INFO  org.springframework.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@18627d7, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@39342546, org.springframework.security.web.context.SecurityContextHolderFilter@486a2a6c, org.springframework.security.web.header.HeaderWriterFilter@3271762, org.springframework.security.web.csrf.CsrfFilter@f14c5bf, org.springframework.security.web.authentication.logout.LogoutFilter@5305613b, com.Proyecto_JS.ProyectoJS.jwt.JwtAuthenticationFilter@40b1edb4, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@478af3a8, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@623c68b1, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@495e6a9f, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@29b3967b, org.springframework.security.web.session.SessionManagementFilter@763d22b1, org.springframework.security.web.access.ExceptionTranslationFilter@7d6f911b, org.springframework.security.web.access.intercept.AuthorizationFilter@420f40a9]
+2025-12-11 11:00:46,358 INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-12-11 11:00:46,370 INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-12-11 11:00:46,396 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-12-11 11:00:46,406 INFO  com.Proyecto_JS.ProyectoJS.ProyectoJsApplication - Started ProyectoJsApplication in 7.142 seconds (process running for 7.706)
+2025-12-11 11:02:27,057 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-12-11 11:02:27,058 INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-12-11 11:02:27,062 INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 2 ms

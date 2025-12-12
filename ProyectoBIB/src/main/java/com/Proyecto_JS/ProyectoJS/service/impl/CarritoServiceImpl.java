@@ -9,6 +9,7 @@ import com.Proyecto_JS.ProyectoJS.repository.*;
 import com.Proyecto_JS.ProyectoJS.service.CarritoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation; // AGREGAR
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -18,19 +19,23 @@ public class CarritoServiceImpl implements CarritoService {
 
     @Autowired
     private CarritoRepository carritoRepository;
+    
     @Autowired
     private LibroRepository libroRepository;
+    
     @Autowired
     private SucursalRepository sucursalRepository;
+    
     @Autowired
     private CarritoItemRepository carritoItemRepository;
+    
     @Autowired
-    private UsuarioRepository usuarioRepository; 
+    private UsuarioRepository usuarioRepository;
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW) // FORZAR NUEVA TRANSACCIÓN
     public Carrito obtenerCarritoDelUsuario(Long usuarioId) {
-        return carritoRepository.findByUsuarioIdAndEstado(usuarioId, Carrito.EstadoCarrito.ABIERTO)
+        return carritoRepository.findByUsuarioIdWithItemsAndLibros(usuarioId)
                 .orElseGet(() -> {
                     Carrito nuevoCarrito = new Carrito();
                     nuevoCarrito.setUsuario(usuarioRepository.findById(usuarioId)
@@ -42,13 +47,19 @@ public class CarritoServiceImpl implements CarritoService {
                 });
     }
 
+    // ... resto de métodos igual
+
+
+
     @Override
     @Transactional
     public void agregarLibroAlCarrito(Long carritoId, Long libroId, int cantidad, Long sucursalId) {
-        Carrito carrito = carritoRepository.findById(carritoId).orElseThrow(() -> new RecursoNoEncontradoException("Carrito no encontrado"));
-        Libro libro = libroRepository.findById(libroId).orElseThrow(() -> new RecursoNoEncontradoException("Libro no encontrado"));
-        Sucursal sucursal = sucursalRepository.findById(sucursalId).orElseThrow(() -> new RecursoNoEncontradoException("Sucursal no encontrada"));
-
+        Carrito carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Carrito no encontrado"));
+        Libro libro = libroRepository.findById(libroId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Libro no encontrado"));
+        Sucursal sucursal = sucursalRepository.findById(sucursalId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Sucursal no encontrada"));
 
         CarritoItem item = new CarritoItem();
         item.setCarrito(carrito);

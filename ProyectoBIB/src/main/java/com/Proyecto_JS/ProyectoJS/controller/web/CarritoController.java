@@ -5,10 +5,12 @@ import com.Proyecto_JS.ProyectoJS.entity.Usuario;
 import com.Proyecto_JS.ProyectoJS.exception.RecursoNoEncontradoException;
 import com.Proyecto_JS.ProyectoJS.repository.UsuarioRepository;
 import com.Proyecto_JS.ProyectoJS.service.CarritoService;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,10 +24,12 @@ public class CarritoController {
 
     @Autowired
     private CarritoService carritoService;
+    
     @Autowired
     private UsuarioRepository usuarioRepository;
 
     @GetMapping("")
+    @Transactional(readOnly = true)
     public String verCarrito(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -33,6 +37,18 @@ public class CarritoController {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
 
         Carrito carrito = carritoService.obtenerCarritoDelUsuario(usuario.getId());
+        
+        // INICIALIZAR TODO: items, libros y sucursales
+        if (carrito != null && carrito.getItems() != null) {
+            Hibernate.initialize(carrito.getItems());
+            carrito.getItems().forEach(item -> {
+                Hibernate.initialize(item.getLibro());
+                if (item.getSucursal() != null) {
+                    Hibernate.initialize(item.getSucursal());
+                }
+            });
+        }
+        
         model.addAttribute("carrito", carrito);
 
         return "public/carrito";

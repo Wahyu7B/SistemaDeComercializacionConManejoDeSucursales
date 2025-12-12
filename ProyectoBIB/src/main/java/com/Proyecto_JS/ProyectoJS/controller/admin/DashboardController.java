@@ -1,9 +1,11 @@
 package com.Proyecto_JS.ProyectoJS.controller.admin;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +44,7 @@ public class DashboardController {
     // ==================== DASHBOARD PRINCIPAL ====================
     
     @GetMapping("/dashboard")
+    @Transactional(readOnly = true)
     public String mostrarDashboard(Model model) {
         try {
             // Datos básicos
@@ -166,6 +169,7 @@ public class DashboardController {
     // ==================== PÁGINA DE GESTIÓN DE PRÉSTAMOS ====================
     
     @GetMapping("/prestamos")
+    @Transactional(readOnly = true)
     public String gestionarPrestamos(Model model) {
         try {
             // Obtener todas las solicitudes activas
@@ -173,6 +177,24 @@ public class DashboardController {
                 .stream()
                 .filter(p -> p.getEstado() == Prestamo.EstadoPrestamo.ACTIVO)
                 .collect(Collectors.toList());
+            
+            // INICIALIZAR RELACIONES LAZY
+            todasSolicitudes.forEach(prestamo -> {
+                if (prestamo.getUsuario() != null) {
+                    Hibernate.initialize(prestamo.getUsuario());
+                }
+                if (prestamo.getSucursal() != null) {
+                    Hibernate.initialize(prestamo.getSucursal());
+                }
+                if (prestamo.getDetalles() != null) {
+                    Hibernate.initialize(prestamo.getDetalles());
+                    prestamo.getDetalles().forEach(detalle -> {
+                        if (detalle.getLibro() != null) {
+                            Hibernate.initialize(detalle.getLibro());
+                        }
+                    });
+                }
+            });
             
             // Separar por estado
             List<Prestamo> pendientes = todasSolicitudes.stream()

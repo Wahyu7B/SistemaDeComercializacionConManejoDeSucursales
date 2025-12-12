@@ -251,9 +251,12 @@
                                 <input type="hidden" name="usuarioId" th:value="${usuario.id}"/>
                                 <select name="rol" class="form-select form-select-sm form-select-modern"
                                         onchange="if(confirm('¿Cambiar rol?')) this.form.submit();">
-                                    <option th:each="rolOpt : ${T(com.Proyecto_JS.ProyectoJS.entity.Usuario.Rol).values()}"
-                                            th:value="${rolOpt}" th:text="${rolOpt}"
-                                            th:selected="${rolOpt == usuario.rol}"></option>
+                                    <option th:each="rolOpt : ${T(com.Proyecto_JS.ProyectoJS.entity.Usuario$Rol).values()}" 
+        th:value="${rolOpt}" 
+        th:text="${rolOpt}" 
+        th:selected="${rolOpt.name() == usuario.rol.name()}">  <!-- ✅ USAR .name() -->
+</option>
+
                                 </select>
                             </form>
                         </td>

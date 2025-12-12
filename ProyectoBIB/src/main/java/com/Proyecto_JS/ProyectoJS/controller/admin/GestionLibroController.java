@@ -7,12 +7,14 @@ import com.Proyecto_JS.ProyectoJS.service.CategoriaService;
 import com.Proyecto_JS.ProyectoJS.service.InventarioService;
 import com.Proyecto_JS.ProyectoJS.service.LibroService;
 
+import org.hibernate.Hibernate; // AGREGAR
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional; // AGREGAR
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -30,9 +32,10 @@ public class GestionLibroController {
     // ==================== LISTAR CON PAGINACIÓN ====================
     
     @GetMapping("")
+    @Transactional // AGREGAR @Transactional
     public String mostrarInventario(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,  // ✅ 10 libros por página
+            @RequestParam(defaultValue = "10") int size,
             Model model) {
         
         try {
@@ -41,6 +44,24 @@ public class GestionLibroController {
             
             // Obtener inventario paginado
             Page<Inventario> inventarioPaginado = inventarioService.obtenerInventarioPaginado(pageable);
+            
+            // INICIALIZAR TODAS LAS RELACIONES LAZY
+            inventarioPaginado.getContent().forEach(item -> {
+                // Inicializar libro
+                if (item.getLibro() != null) {
+                    Hibernate.initialize(item.getLibro());
+                    
+                    // Inicializar categoría del libro
+                    if (item.getLibro().getCategoria() != null) {
+                        Hibernate.initialize(item.getLibro().getCategoria());
+                    }
+                }
+                
+                // Inicializar sucursal
+                if (item.getSucursal() != null) {
+                    Hibernate.initialize(item.getSucursal());
+                }
+            });
             
             // Agregar datos al modelo
             model.addAttribute("inventario", inventarioPaginado.getContent());

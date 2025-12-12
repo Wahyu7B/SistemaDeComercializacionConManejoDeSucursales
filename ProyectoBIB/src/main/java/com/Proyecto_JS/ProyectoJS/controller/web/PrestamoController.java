@@ -8,10 +8,12 @@ import com.Proyecto_JS.ProyectoJS.repository.UsuarioRepository;
 import com.Proyecto_JS.ProyectoJS.service.PrestamoService;
 import com.Proyecto_JS.ProyectoJS.service.SucursalService;
 import com.Proyecto_JS.ProyectoJS.service.LibroService;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +43,7 @@ public class PrestamoController {
      * Listar préstamos del usuario autenticado (CLIENTE)
      */
     @GetMapping("/mis-prestamos")
+    @Transactional
     public String misPrestamos(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         // Obtener usuario autenticado
         Usuario usuario = usuarioRepository.findByEmail(userDetails.getUsername())
@@ -50,6 +53,23 @@ public class PrestamoController {
         List<Prestamo> todosPrestamos = prestamoService.listarPorUsuario(usuario.getId());
         
         System.out.println("📚 Total préstamos encontrados: " + todosPrestamos.size());
+
+        // Inicializar relaciones lazy
+        todosPrestamos.forEach(prestamo -> {
+            // Inicializar sucursal
+            if (prestamo.getSucursal() != null) {
+                Hibernate.initialize(prestamo.getSucursal());
+            }
+            // Inicializar detalles y sus libros
+            if (prestamo.getDetalles() != null) {
+                Hibernate.initialize(prestamo.getDetalles());
+                prestamo.getDetalles().forEach(detalle -> {
+                    if (detalle.getLibro() != null) {
+                        Hibernate.initialize(detalle.getLibro());
+                    }
+                });
+            }
+        });
 
         // Separar en activos e historial
         List<Prestamo> prestamosActivos = todosPrestamos.stream()
@@ -67,19 +87,41 @@ public class PrestamoController {
         model.addAttribute("prestamos", todosPrestamos);
         model.addAttribute("usuario", usuario);
         
-        return "public/mis-prestamos"; // ← CAMBIO AQUÍ
+        return "public/mis-prestamos";
     }
 
     /**
      * Ver detalle de un préstamo
      */
     @GetMapping("/{id}")
-    public String verDetalle(@PathVariable Long id, Model model) {
-        Prestamo prestamo = prestamoService.obtenerPorId(id);
-        model.addAttribute("prestamo", prestamo);
-        model.addAttribute("detalles", prestamoService.obtenerDetalles(id));
-        return "prestamos/detalle";
+@Transactional
+public String verDetalle(@PathVariable Long id, Model model) {
+    Prestamo prestamo = prestamoService.obtenerPorId(id);
+    
+    // Inicializar USUARIO
+    if (prestamo.getUsuario() != null) {
+        Hibernate.initialize(prestamo.getUsuario());
     }
+    
+    // Inicializar sucursal
+    if (prestamo.getSucursal() != null) {
+        Hibernate.initialize(prestamo.getSucursal());
+    }
+    
+    // Inicializar detalles y sus libros
+    if (prestamo.getDetalles() != null) {
+        Hibernate.initialize(prestamo.getDetalles());
+        prestamo.getDetalles().forEach(detalle -> {
+            if (detalle.getLibro() != null) {
+                Hibernate.initialize(detalle.getLibro());
+            }
+        });
+    }
+    
+    model.addAttribute("prestamo", prestamo);
+    model.addAttribute("detalles", prestamoService.obtenerDetalles(id));
+    return "prestamos/detalle";
+}
 
     /**
      * Formulario para crear nuevo préstamo (ADMIN)
@@ -127,6 +169,7 @@ public class PrestamoController {
      * Listar todos los préstamos (ADMIN)
      */
     @GetMapping("/admin/listar")
+    @Transactional
     public String listarTodos(@RequestParam(required = false) String estado,
                              @RequestParam(required = false) String usuario,
                              Model model) {
@@ -138,6 +181,21 @@ public class PrestamoController {
         } else {
             prestamos = prestamoService.listarTodos();
         }
+
+        // Inicializar relaciones
+        prestamos.forEach(prestamo -> {
+            if (prestamo.getSucursal() != null) {
+                Hibernate.initialize(prestamo.getSucursal());
+            }
+            if (prestamo.getDetalles() != null) {
+                Hibernate.initialize(prestamo.getDetalles());
+                prestamo.getDetalles().forEach(detalle -> {
+                    if (detalle.getLibro() != null) {
+                        Hibernate.initialize(detalle.getLibro());
+                    }
+                });
+            }
+        });
 
         List<Prestamo> prestamosActivos = prestamoService.listarPorEstado(Prestamo.EstadoPrestamo.ACTIVO);
         List<Prestamo> prestamosVencidos = prestamoService.listarPorEstado(Prestamo.EstadoPrestamo.VENCIDO);
@@ -153,8 +211,25 @@ public class PrestamoController {
      * Listar préstamos activos (ADMIN)
      */
     @GetMapping("/admin/activos")
+    @Transactional
     public String listarActivos(Model model) {
         List<Prestamo> prestamosActivos = prestamoService.listarPorEstado(Prestamo.EstadoPrestamo.ACTIVO);
+        
+        // Inicializar relaciones
+        prestamosActivos.forEach(prestamo -> {
+            if (prestamo.getSucursal() != null) {
+                Hibernate.initialize(prestamo.getSucursal());
+            }
+            if (prestamo.getDetalles() != null) {
+                Hibernate.initialize(prestamo.getDetalles());
+                prestamo.getDetalles().forEach(detalle -> {
+                    if (detalle.getLibro() != null) {
+                        Hibernate.initialize(detalle.getLibro());
+                    }
+                });
+            }
+        });
+        
         model.addAttribute("prestamos", prestamosActivos);
         return "prestamos/admin/activos";
     }
@@ -162,24 +237,49 @@ public class PrestamoController {
     /**
      * Formulario de devolución (ADMIN)
      */
-    @GetMapping("/admin/{id}/devolucion")
-    public String formularioDevolucion(@PathVariable Long id, Model model) {
-        Prestamo prestamo = prestamoService.obtenerPorId(id);
-        
-        if (prestamo.getEstado() != Prestamo.EstadoPrestamo.ACTIVO && 
-            prestamo.getEstado() != Prestamo.EstadoPrestamo.VENCIDO) {
-            throw new RuntimeException("El préstamo no está en estado activo o vencido");
-        }
-        
-        model.addAttribute("prestamo", prestamo);
-        model.addAttribute("detalles", prestamoService.obtenerDetalles(id));
-        
-        DevolucionDTO devolucionDTO = new DevolucionDTO();
-        devolucionDTO.setPrestamoId(id);
-        model.addAttribute("devolucionDTO", devolucionDTO);
-        
-        return "prestamos/admin/devolucion";
+    /**
+ * Formulario de devolución (ADMIN)
+ */
+@GetMapping("/admin/{id}/devolucion")
+@Transactional
+public String formularioDevolucion(@PathVariable Long id, Model model) {
+    Prestamo prestamo = prestamoService.obtenerPorId(id);
+    
+    if (prestamo.getEstado() != Prestamo.EstadoPrestamo.ACTIVO && 
+        prestamo.getEstado() != Prestamo.EstadoPrestamo.VENCIDO) {
+        throw new RuntimeException("El préstamo no está en estado activo o vencido");
     }
+    
+    // Inicializar USUARIO
+    if (prestamo.getUsuario() != null) {
+        Hibernate.initialize(prestamo.getUsuario());
+    }
+    
+    // Inicializar sucursal
+    if (prestamo.getSucursal() != null) {
+        Hibernate.initialize(prestamo.getSucursal());
+    }
+    
+    // Inicializar detalles y sus libros
+    if (prestamo.getDetalles() != null) {
+        Hibernate.initialize(prestamo.getDetalles());
+        prestamo.getDetalles().forEach(detalle -> {
+            if (detalle.getLibro() != null) {
+                Hibernate.initialize(detalle.getLibro());
+            }
+        });
+    }
+    
+    model.addAttribute("prestamo", prestamo);
+    model.addAttribute("detalles", prestamoService.obtenerDetalles(id));
+    
+    DevolucionDTO devolucionDTO = new DevolucionDTO();
+    devolucionDTO.setPrestamoId(id);
+    model.addAttribute("devolucionDTO", devolucionDTO);
+    
+    return "prestamos/admin/devolucion";
+}
+
 
     /**
      * Procesar devolución (ADMIN)
