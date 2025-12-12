@@ -11579,3 +11579,12 @@ java.lang.ClassCastException: null
 2025-12-12 03:52:00,988 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
 2025-12-12 03:52:00,989 INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
 2025-12-12 03:52:00,990 INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-12-12 04:50:39,378 INFO  org.springframework.boot.devtools.autoconfigure.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-12-12 04:50:39,437 INFO  org.apache.coyote.http11.Http11NioProtocol - Stopping ProtocolHandler ["http-nio-8080"]
+2025-12-12 04:50:39,463 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-12-12 04:50:39,490 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-12-12 04:50:39,496 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-12-12 04:50:39,865 INFO  com.Proyecto_JS.ProyectoJS.ProyectoJsApplication - Starting ProyectoJsApplication using Java 21 with PID 2968 (C:\Users\israe\OneDrive\Pictures\GIT BIBLIO ISRA\SistemaDeComercializacionConManejoDeSucursales\ProyectoBIB\target\classes started by israe in c:\Users\israe\OneDrive\Pictures\GIT BIBLIO ISRA\SistemaDeComercializacionConManejoDeSucursales)
+2025-12-12 04:50:39,866 INFO  com.Proyecto_JS.ProyectoJS.ProyectoJsApplication - No active profile set, falling back to 1 default profile: "default"
+2025-12-12 04:50:40,384 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-12 04:50:40,500 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 115 ms. Found 14 JPA repository interfaces.
