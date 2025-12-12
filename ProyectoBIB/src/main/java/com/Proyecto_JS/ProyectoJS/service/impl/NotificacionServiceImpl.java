@@ -2,11 +2,10 @@ package com.Proyecto_JS.ProyectoJS.service.impl;
 
 import com.Proyecto_JS.ProyectoJS.service.NotificacionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.Map;
-import jakarta.annotation.PostConstruct; // ← AGREGAR
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class NotificacionServiceImpl implements NotificacionService {
@@ -14,14 +13,17 @@ public class NotificacionServiceImpl implements NotificacionService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${NOTIFICACION_SERVICE_URL:http://localhost:4000}")
-    private String notificacionesBaseUrl;
+    // ✅ Detección automática de entorno
+    private final String notificacionesBaseUrl = 
+        System.getenv("RAILWAY_ENVIRONMENT") != null 
+            ? "https://servicio-notificaciones-production.up.railway.app"
+            : "http://localhost:4000";
 
-    // ✅ AGREGAR ESTE MÉTODO PARA DEBUG
     @PostConstruct
     public void init() {
         System.out.println("════════════════════════════════════════");
         System.out.println("🔧 NOTIFICACIONES_URL configurada: " + notificacionesBaseUrl);
+        System.out.println("🌍 Entorno: " + (System.getenv("RAILWAY_ENVIRONMENT") != null ? "RAILWAY" : "LOCAL"));
         System.out.println("════════════════════════════════════════");
     }
 
@@ -44,6 +46,7 @@ public class NotificacionServiceImpl implements NotificacionService {
 
         } catch (Exception e) {
             System.err.println("❌ Error al conectar con el servicio de notificaciones: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -66,6 +69,7 @@ public class NotificacionServiceImpl implements NotificacionService {
             
         } catch (Exception e) {
             System.err.println("❌ Error al conectar con el servicio de notificaciones para rechazo: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
