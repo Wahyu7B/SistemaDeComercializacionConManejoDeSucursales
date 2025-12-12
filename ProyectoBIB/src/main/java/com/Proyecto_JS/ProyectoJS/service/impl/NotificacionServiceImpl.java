@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.Map;
+import jakarta.annotation.PostConstruct; // ← AGREGAR
 
 @Service
 public class NotificacionServiceImpl implements NotificacionService {
@@ -13,9 +14,16 @@ public class NotificacionServiceImpl implements NotificacionService {
     @Autowired
     private RestTemplate restTemplate;
 
-    // ✅ Usar variable de entorno en lugar de localhost
     @Value("${NOTIFICACIONES_URL:http://localhost:4000}")
     private String notificacionesBaseUrl;
+
+    // ✅ AGREGAR ESTE MÉTODO PARA DEBUG
+    @PostConstruct
+    public void init() {
+        System.out.println("════════════════════════════════════════");
+        System.out.println("🔧 NOTIFICACIONES_URL configurada: " + notificacionesBaseUrl);
+        System.out.println("════════════════════════════════════════");
+    }
 
     @Override
     public void enviarConfirmacionDePedido(String emailCliente, Long numeroPedido) {
