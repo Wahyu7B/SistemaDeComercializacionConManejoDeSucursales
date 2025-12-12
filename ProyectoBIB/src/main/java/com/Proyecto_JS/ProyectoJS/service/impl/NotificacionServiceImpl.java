@@ -14,7 +14,7 @@ public class NotificacionServiceImpl implements NotificacionService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${NOTIFICACIONES_URL:http://localhost:4000}")
+    @Value("${NOTIFICACION_SERVICE_URL:http://localhost:4000}")
     private String notificacionesBaseUrl;
 
     // ✅ AGREGAR ESTE MÉTODO PARA DEBUG
